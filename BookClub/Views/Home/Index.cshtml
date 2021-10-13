@@ -1,0 +1,33 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+    Layout = "_SectionPageLayout";
+}
+
+@section Header
+{ 
+    <h1 class="display-4">Welcome to BookClub!</h1>
+}
+
+@section Contents
+{ 
+<div class="text-center">
+    <a class="nav-link text-dark" asp-area="" asp-controller="Clubs" asp-action="Index"><h1 class="display-6">Clubs</h1></a>
+    <h1 class="display-8 text-description">Explore different and amazing book clubs. Discuss the books with club members, leave reviews, and more!</h1>
+    <hr class="bg-dark margin-no-vertical border-dark" style="width:50%">
+    <br/>
+    <a class="nav-link text-dark" asp-area="" asp-controller="Books" asp-action="Index"><h1 class="display-6">Books</h1></a>
+    <h1 class="display-8 text-description">Rate books, add new ones, find out which ones will be soon discussed in your clubs!</h1>
+    <hr class="bg-dark margin-no-vertical border-dark" style="width:50%">
+</div>
+}
+
+@section AboutSection
+{ 
+<h1 class="display-7">About project</h1>
+<h1 class="display-8">
+    This is an open-source ASP.NET project created to simplify the organization of management of book clubs.
+    Club owners and managers are provided with all necessary information about readers, so they are able to start discussions relying
+    on the information about readers' opinions on different books.
+</h1>
+<a class="nav-link text-dark" href="https://github.com"><h1 class="display-8">GitHub</h1></a>
+}

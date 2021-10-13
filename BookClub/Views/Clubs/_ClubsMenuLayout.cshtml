@@ -1,0 +1,43 @@
+﻿@{
+    Layout = "_Layout";
+}
+
+@section LeftNavbar{
+    <div class="left-navbar">
+        <div class="align-items-sm-start px-3 pt-2">
+            <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
+                <li class="w-100">
+                    <a asp-area="" asp-controller="Clubs" asp-action="MyClubs" class="nav-link font-weight-bold px-0">
+                    My <span class="d-none d-sm-inline">Clubs</span></a>
+                </li>
+                <li class="w-100">
+                    <a asp-area="" asp-controller="Clubs" asp-action="Managed" class="nav-link font-weight-bold px-0">
+                        M<span class="d-none d-sm-inline">a</span>n<span class="d-none d-sm-inline">a</span>g<span class="d-none d-sm-inline">ed</span>
+                    </a>
+                </li>
+                <li class="w-100">
+                    <a asp-area="" asp-controller="Clubs" asp-action="Create" class="nav-link font-weight-bold px-0">
+                        Cr<span class="d-none d-sm-inline">ea</span>t<span class="d-none d-sm-inline">e</span>
+                    </a>
+                </li>
+                <li class="w-100">
+                    <a asp-area="" asp-controller="Clubs" asp-action="UpcomingDiscussions" class="nav-link font-weight-bold px-0">
+                        Dis<span class="d-none d-sm-inline">cussions</span>
+                    </a>
+                </li>
+                <li class="w-100">
+                    <a asp-area="" asp-controller="Clubs" asp-action="Browse" class="nav-link font-weight-bold px-0">
+                        Br<span class="d-none d-sm-inline">o</span>ws<span class="d-none d-sm-inline">e</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+}
+
+<div class="text-center">
+    @RenderSection("Header", required: true)
+    <hr class="bg-dark margin-no-vertical border-dark" style="width:70%">
+</div>
+
+@RenderBody()

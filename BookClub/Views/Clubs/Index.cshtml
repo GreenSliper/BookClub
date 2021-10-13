@@ -1,0 +1,43 @@
+﻿@{
+    ViewData["Title"] = "Clubs";
+    Layout = "_SectionPageLayout";
+}
+
+@section Header
+{
+    <h1 class="display-4">Clubs</h1>
+}
+
+@section Contents
+{
+    <div class="text-center">
+        <a class="nav-link text-dark" asp-area="" asp-controller="Clubs" asp-action="MyClubs"><h1 class="display-6">My Clubs</h1></a>
+        <h1 class="display-8 text-description">Organize your clubs</h1>
+        <hr class="bg-dark margin-no-vertical border-dark" style="width:50%">
+        <br />
+        <a class="nav-link text-dark" asp-area="" asp-controller="Clubs" asp-action="Managed"><h1 class="display-6">Managed Clubs</h1></a>
+        <h1 class="display-8 text-description">Start discussions, manage member privileges, explore statistical data</h1>
+        <hr class="bg-dark margin-no-vertical border-dark" style="width:50%">
+        <br />
+        <a class="nav-link text-dark" asp-area="" asp-controller="Clubs" asp-action="Create"><h1 class="display-6">Create Club</h1></a>
+        <h1 class="display-8 text-description">Create your own club. Invite users, share your opinions</h1>
+        <hr class="bg-dark margin-no-vertical border-dark" style="width:50%">
+        <br />
+        <a class="nav-link text-dark" asp-area="" asp-controller="Clubs" asp-action="UpcomingDiscussions"><h1 class="display-6">Upcoming Discussions</h1></a>
+        <h1 class="display-8 text-description">Review the list of books that will be discussed soon</h1>
+        <hr class="bg-dark margin-no-vertical border-dark" style="width:50%">
+        <br />
+        <a class="nav-link text-dark" asp-area="" asp-controller="Clubs" asp-action="Browse"><h1 class="display-6">Browse public clubs</h1></a>
+        <h1 class="display-8 text-description">Find a perfect community of people, who share same interests</h1>
+        <hr class="bg-dark margin-no-vertical border-dark" style="width:50%">
+    </div>
+}
+
+@section AboutSection
+{
+    <h1 class="display-7">About clubs</h1>
+    <h1 class="display-8">
+        Clubs are public or private communities of readers, which are managed by club owner and club managers. You are free to join 
+        public clubs or to create your own unique community. Find interesting people, write reviews and participate in discussions!
+    </h1>
+}

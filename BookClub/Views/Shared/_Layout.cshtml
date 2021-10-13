@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - BookClub</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow fixed-top">
+            <div class="container">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">BookClub</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                Clubs
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Clubs" asp-action="Index">Home</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Clubs" asp-action="MyClubs">My Clubs</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Clubs" asp-action="Managed">Managed</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Clubs" asp-action="Create">Create</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Clubs" asp-action="UpcomingDiscussions">Discussions</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Clubs" asp-action="Browse">Browse</a></li>
+                            </ul>
+                        </li>
+
+                    </ul>
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </nav>
+    </header>
+    @{
+        string containerClass = "body-container";
+        string bodyClass = "";
+        if (IsSectionDefined("LeftNavbar"))
+        {
+            containerClass = "body-container-100";
+            bodyClass = "body-margin";
+        }
+    }
+
+    <div class="container @containerClass">
+        <main role="main">
+            @RenderSection("LeftNavbar", required: false)
+            <div class="@bodyClass">
+                @RenderBody()
+            </div>
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2021 - BookClub
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

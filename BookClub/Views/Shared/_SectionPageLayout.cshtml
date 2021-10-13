@@ -1,0 +1,23 @@
+﻿@{
+    Layout = "_Layout";
+}
+
+<div class="text-center">
+    @RenderSection("Header", required: true)
+    <hr class="bg-dark margin-no-vertical border-dark" style="width:70%">
+</div>
+
+<br />
+<br />
+<div class="text-left left-margin-h">
+    <h2 class="display-7">Browse content:</h2>
+</div>
+@RenderSection("Contents", required: true)
+
+@RenderBody()
+
+<br />
+<br />
+<div class="text-center about-box">
+    @RenderSection("AboutSection", required: true)
+</div>
