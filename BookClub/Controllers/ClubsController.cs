@@ -24,21 +24,35 @@ namespace BookClub.Controllers
 		}
 
 		[Authorize]
-		public IActionResult MyClubs()
+		public async Task<IActionResult> MyClubs()
 		{
 			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			return View(clubService.GetUserClubs(userid));
+			return View(await clubService.GetUserClubs(userid));
 		}
 		
 		[Authorize]
-		public IActionResult Managed()
+		public async Task<IActionResult> Managed()
 		{
-			return View();
+			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			return View(await clubService.GetUserManagedClubs(userid));
 		}
-
+		
 		[Authorize]
 		public IActionResult Create()
 		{
+			return View();
+		}
+		
+		[Authorize]
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> Create([FromForm] Club club)
+		{
+			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			if (await clubService.TryInsertClub(club, ModelState, userid))
+			{
+				return RedirectToAction("MyClubs");
+			}
 			return View();
 		}
 

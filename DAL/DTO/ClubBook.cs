@@ -11,9 +11,9 @@ namespace DAL.DTO
 		public int ClubID { get; set; }
 		public int BookID { get; set; }
 
-		public Club Club { get; set; }
-		public Book Book { get; set; }
+		public virtual Club Club { get; set; }
+		public virtual Book Book { get; set; }
 		public DateTime AddedTime { get; set; }
-		public ReaderUser AddedByUser { get; set; }
+		public virtual ReaderUser AddedByUser { get; set; }
 	}
 }

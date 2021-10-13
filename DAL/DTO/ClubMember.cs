@@ -14,8 +14,8 @@ namespace DAL.DTO
 		public int ClubID { get; set; }
 		public string UserID { get; set; }
 
-		public ReaderUser User { get; set; }
-		public Club Club { get; set; }
+		public virtual ReaderUser User { get; set; }
+		public virtual Club Club { get; set; }
 		public DateTime LastVisitTime { get; set; }
 		public MemberPermissions PermissionLevel { get; set; }
 	}

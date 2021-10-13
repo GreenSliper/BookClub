@@ -9,7 +9,7 @@ namespace Repository
 	/// <summary>
 	/// Generic CRUD repository base
 	/// </summary>
-	public abstract class CrudRepository<ContextT, ModelT> : IRepository<ModelT>
+	public abstract class CrudRepository<ContextT, ModelT, KeyT> : IRepository<ModelT, KeyT>
 		where ModelT: class
 		where ContextT : DbContext
 	{
@@ -58,7 +58,6 @@ namespace Repository
 		{
 			await context.SaveChangesAsync();
 		}
-
-		public abstract Task<ModelT> Get(int id);
+		public abstract Task<ModelT> Get(KeyT id);
 	}
 }

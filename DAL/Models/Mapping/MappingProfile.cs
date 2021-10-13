@@ -11,6 +11,9 @@ namespace DAL.Models.Mapping
 
 			CreateMap<Book, DTO.Book>();
 			CreateMap<DTO.Book, Book>();
+
+			CreateMap<ClubMember, DTO.ClubMember>();
+			CreateMap<DTO.ClubMember, ClubMember>();
 		}
 	}
 }

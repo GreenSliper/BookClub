@@ -2,7 +2,23 @@
     Layout = "_ClubsMenuLayout";
 }
 
+@model DAL.Models.Club
+
 @section Header
 {
     <h1 class="display-4">Create Club</h1>
 }
+
+<br>
+<form method="post" asp-controller="Clubs" asp-action="Create" asp-validation-summary="All">
+    <div class="club-box">
+        @{
+            await Html.RenderPartialAsync("_ClubFormPartial", Model);
+        }
+
+        <br /><br />
+        <div style="text-align:center">
+            <input type="submit" value="Create new club" class="display-6">
+        </div>
+    </div>
+</form>

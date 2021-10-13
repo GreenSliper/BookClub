@@ -1,5 +1,6 @@
 using AutoMapper;
 using DAL.Data;
+using DAL.DTO;
 using DAL.Models.Mapping;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -32,7 +33,8 @@ namespace BookClub
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddDbContext<ApplicationDbContext>(options =>
-				options.UseNpgsql(
+				options.UseLazyLoadingProxies()
+				.UseNpgsql(
 					Configuration.GetConnectionString("DefaultConnection")));
 			services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -58,7 +60,8 @@ namespace BookClub
 			IMapper mapper = mapperConfig.CreateMapper();
 			services.AddSingleton(mapper);
 
-			services.AddTransient<IRepository<ReaderUser>, UserRepository<ApplicationDbContext>>();
+			services.AddTransient<IRepository<ReaderUser, string>, UserRepository<ApplicationDbContext>>();
+			services.AddTransient<IRepository<Club, int>, ClubRepository<ApplicationDbContext>>();
 			services.AddTransient<IClubService, ClubService>();
 
 			services.AddControllersWithViews();

@@ -132,6 +132,33 @@ body {
     margin-left: 75px;
 }
 
+div.club-box {
+    box-shadow: 0px 0px 10px grey;
+    padding: 20px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #dedede;
+    background-color: #ffffff;
+    width: 100%;
+}
+
+textarea.description-field {
+    resize: none;
+    height: 5.2rem;
+}
+
+input[type=text].line-field {
+    height: 120%;
+    max-width: fit-content;
+}
+
+input[type=submit] {
+    padding: 5px 15px;
+    background: white;
+    border: 2px solid lightgrey;
+    cursor: pointer;
+}
+
 @media (min-width:576px) {
     .body-margin {
         margin-left: 145px;

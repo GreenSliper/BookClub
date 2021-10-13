@@ -1,0 +1,20 @@
+﻿@model DAL.Models.Club
+
+<strong><label class="display-8" asp-for="Name"></label></strong>
+<br />
+<input type="text" class="display-8 line-field" placeholder="Name" maxlength="50" style="width:100%" asp-for="Name">
+<span class="display-8" style="color:red;" asp-validation-for="Name"></span>
+<br />
+<br />
+
+<strong><label class="display-8" asp-for="Description"></label></strong>
+<br />
+<textarea type="text" class="display-8 description-field" placeholder="Description" rows="3" maxlength="255"
+          style="width:100%" asp-for="Description"></textarea>
+<span class="display-8" style="color:red;" asp-validation-for="Description"></span>
+<br />
+<br />
+
+<strong><label class="display-8" asp-for="IsPublic"></label></strong>
+<br />
+<input style="width:1.6rem; height:1.6rem;" asp-for="IsPublic">

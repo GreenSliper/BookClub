@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace Repository
 {
-	public class UserRepository<ContextT> : CrudRepository<ContextT, ReaderUser> where ContextT:DbContext
+	public class UserRepository<ContextT> : CrudRepository<ContextT, ReaderUser, string> where ContextT:DbContext
 	{
 		public UserRepository(ContextT context) : base(context) { }
-		public override async Task<ReaderUser> Get(int id)
+		public override async Task<ReaderUser> Get(string id)
 		{
-			return await entities.FirstOrDefaultAsync(x => x.Id == id.ToString());
+			return await entities.FirstOrDefaultAsync(x => x.Id == id);
 		}
 	}
 }

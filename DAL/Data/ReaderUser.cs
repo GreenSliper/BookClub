@@ -10,7 +10,7 @@ namespace DAL.Data
 	public class ReaderUser : IdentityUser
 	{
 		public string Status { get; set; }
-		public ICollection<ClubMember> Memberships { get; set; }
-		public ICollection<ReadBook> ReadBooks { get; set; }
+		public virtual ICollection<ClubMember> Memberships { get; set; }
+		public virtual ICollection<ReadBook> ReadBooks { get; set; }
 	}
 }

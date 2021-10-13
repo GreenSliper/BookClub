@@ -6,3 +6,22 @@
 {
     <h1 class="display-4">Managed Clubs</h1>
 }
+
+@model IEnumerable<DAL.Models.Club>
+
+<br />
+<br />
+<table class="text-center w-100">
+    <tr>
+        <th>
+            <p class="display-7"><strong>Club</strong></p>
+        </th>
+        <th>
+            <p class="display-7"><strong>Description</strong></p>
+        </th>
+    </tr>
+    @foreach (var c in Model)
+    {
+        await Html.RenderPartialAsync("_ClubTableRow", c);
+    }
+</table>

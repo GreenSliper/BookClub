@@ -1,0 +1,17 @@
+﻿@{
+    int descMax = 100;
+    string shortenedDesc = Model.Description;
+    if (shortenedDesc.Length > descMax)
+        shortenedDesc = shortenedDesc[..descMax] + "...";
+}
+
+@model DAL.Models.Club
+
+<tr>
+    <td>
+        <a class="display-8" asp-controller="Clubs" asp-action="ViewClub" asp-route-id="@Model.ID">@Model.Name</a>
+    </td>
+    <td>
+        <p class="display-8 mb-0">@shortenedDesc</p>
+    </td>
+</tr>

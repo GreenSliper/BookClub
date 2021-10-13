@@ -11,8 +11,8 @@ namespace DAL.DTO
 		public string ReaderID { get; set; }
 		public int BookID { get; set; }
 
-		public ReaderUser Reader { get; set; }
-		public Book Book { get; set; }
+		public virtual ReaderUser Reader { get; set; }
+		public virtual Book Book { get; set; }
 
 		public int? RememberQuality { get; set; }
 		public int? Rating { get; set; }

@@ -5,13 +5,13 @@ using System.Threading.Tasks;
 
 namespace Repository
 {
-	public interface IRepository<ModelT>
+	public interface IRepository<ModelT, KeyT>
 	{
 		Task<IEnumerable<ModelT>> GetAll();
-		Task<ModelT> Get(int id);
 		Task Insert(ModelT model);
 		Task Update(ModelT model);
 		Task Delete(ModelT model);
+		Task<ModelT> Get(KeyT id);
 		Task SaveChanges();
 	}
 }
