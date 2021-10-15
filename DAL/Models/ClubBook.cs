@@ -1,16 +1,14 @@
-﻿using System;
+﻿using DAL.Data;
+using System;
 using System.Collections.Generic;
-using DAL.Data;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
-namespace DAL.DTO
+namespace DAL.Models
 {
 	public class ClubBook
 	{
-		public int ClubID { get; set; }
-		public int BookID { get; set; }
-
 		public virtual Club Club { get; set; }
 		public virtual Book Book { get; set; }
 		public DateTime AddedTime { get; set; }

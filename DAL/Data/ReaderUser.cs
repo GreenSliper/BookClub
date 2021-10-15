@@ -12,5 +12,6 @@ namespace DAL.Data
 		public string Status { get; set; }
 		public virtual ICollection<ClubMember> Memberships { get; set; }
 		public virtual ICollection<ReadBook> ReadBooks { get; set; }
+		public virtual ICollection<ClubDiscussion> CreatedDiscussions { get; set; }
 	}
 }

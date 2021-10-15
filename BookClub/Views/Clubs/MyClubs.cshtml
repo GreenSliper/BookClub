@@ -22,7 +22,7 @@
         </tr>
         @foreach (var c in Model)
         {
-            await Html.RenderPartialAsync("_ClubTableRow", c);
+            await Html.RenderPartialAsync("Partial/_ClubTableRow", c);
         }
     </table>
 

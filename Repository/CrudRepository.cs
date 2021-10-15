@@ -13,7 +13,7 @@ namespace Repository
 		where ModelT: class
 		where ContextT : DbContext
 	{
-		private readonly ContextT context;
+		protected readonly ContextT context;
 		protected DbSet<ModelT> entities;
 
 		public CrudRepository(ContextT context)
@@ -43,10 +43,12 @@ namespace Repository
 			await SaveChanges();
 		}
 
-		public virtual async Task Update(ModelT entity)
+		public virtual async Task Update(ModelT old, ModelT updated)
 		{
-			CheckNull(entity);
-			entities.Update(entity);
+			CheckNull(old);
+			//avoid proxy data loss
+			context.Entry(old).CurrentValues.SetValues(updated);
+			entities.Update(old);
 			await SaveChanges();
 		}
 		public virtual async Task<IEnumerable<ModelT>> GetAll()

@@ -159,6 +159,24 @@ input[type=submit] {
     cursor: pointer;
 }
 
+
+
+.v1 {
+    font-size: calc((0.5vh + 1vw)*0.7) !important;
+}
+.v2 {
+    font-size: calc((1vh + 2vw)*0.7) !important;
+}
+.v3 {
+    font-size: calc((1.5vh + 3vw)*0.7) !important;
+}
+.v5 {
+    font-size: calc((2.5vh + 5vw)*0.7) !important;
+}
+.v10 {
+    font-size: calc((5vh + 10vw)*0.7) !important;
+}
+
 @media (min-width:576px) {
     .body-margin {
         margin-left: 145px;
@@ -166,10 +184,28 @@ input[type=submit] {
 }
 
 @media (max-width: 768px) {
+    .v1 {
+        font-size: calc(0.5vh + 1vw) !important;
+    }
+
+    .v2 {
+        font-size: calc(1vh + 2vw) !important;
+    }
+
+    .v3 {
+        font-size: calc(1.5vh + 3vw) !important;
+    }
+
+    .v5 {
+        font-size: calc(2.5vh + 5vw) !important;
+    }
+
+    .v10 {
+        font-size: calc(5vh + 10vw) !important;
+    }
     .left-margin-h {
         margin-left: 7%;
     }
-
     .text-description {
         margin-left: 10%;
         margin-right: 10%;

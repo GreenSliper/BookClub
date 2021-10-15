@@ -33,9 +33,9 @@ namespace Service
 
 		public async Task<IEnumerable<Club>> GetUserManagedClubs(string userId)
 		{
-			//logics: creator of the club is always the member
+			//logics: creator/manager of the club is always the member
 			return from m in (await userRepos.Get(userId)).Memberships
-				   where m.Club.Creator.Id == userId
+				   where (int)m.PermissionLevel>(int)DAL.DTO.MemberPermissions.Reader || m.Club.Creator.Id == userId
 				   select mapper.Map<Club>(m.Club);
 		}
 
@@ -52,6 +52,38 @@ namespace Service
 				});
 				await clubRepos.Insert(dto);
 				return true;
+			}
+			return false;
+		}
+
+		public async Task<Club> GetClubView(int id, string userId)
+		{
+			var dto = await clubRepos.Get(id);
+			if(dto.IsPublic || dto.Members.FirstOrDefault(x=>x.UserID == userId)!=null)
+				return mapper.Map<Club>(dto);
+			return null;
+		}
+
+		public async Task<bool> CanUserManageClub(int clubId, string userId)
+		{
+			var club = await clubRepos.Get(clubId);
+			if (club.Creator?.Id == userId)
+				return true;
+			DAL.DTO.MemberPermissions? perm;
+			if ((perm = club.Members.FirstOrDefault(x => x.UserID == userId)?.PermissionLevel) != null)
+			{
+				return (int)perm > (int)DAL.DTO.MemberPermissions.Reader;
+			}
+			return false;
+		}
+
+		public async Task<bool> TryUpdateClub(Club club, ModelStateDictionary modelState)
+		{
+			if (modelState.IsValid && club.ID.HasValue)
+			{
+				var old = await clubRepos.Get(club.ID.Value);
+				var updated = mapper.Map<DAL.DTO.Club>(club);
+				await clubRepos.Update(old, updated);
 			}
 			return false;
 		}

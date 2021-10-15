@@ -66,5 +66,57 @@ namespace BookClub.Controllers
 		{
 			return View();
 		}
+
+		public async Task<IActionResult> ViewClub(int id)
+		{
+			string userid = null;
+			if (User.Identity.IsAuthenticated)
+			{
+				userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
+				if (await clubService.CanUserManageClub(id, userid))
+					return RedirectToAction("Manage", new { id });
+			}
+			var club = await clubService.GetClubView(id, userid);
+			if (club != null) //not found / no access
+				return View(club);
+			else //TODO to error 404 page
+				return RedirectToAction("Index");
+		}
+		
+		[Authorize]
+		public async Task<IActionResult> Manage(int id)
+		{
+			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			if (await clubService.CanUserManageClub(id, userid))
+				return View(await clubService.GetClubView(id, userid));
+			else
+				return RedirectToAction("ViewClub", new { id });
+		}
+		
+		[Authorize]
+		public async Task<IActionResult> Edit(int id)
+		{
+			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			if (await clubService.CanUserManageClub(id, userid))
+				return View(await clubService.GetClubView(id, userid));
+			else
+				return RedirectToAction("ViewClub", new { id });
+		}
+
+		[Authorize]
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> Edit([FromForm] Club club)
+		{
+			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			if (club.ID.HasValue && await clubService.CanUserManageClub(club.ID.Value, userid))
+			{
+				if (await clubService.TryUpdateClub(club, ModelState))
+					return RedirectToAction("ViewClub", new { club.ID });
+				else
+					; //TODO err page
+			}
+			return RedirectToAction("ViewClub", new { club.ID });
+		}
 	}
 }

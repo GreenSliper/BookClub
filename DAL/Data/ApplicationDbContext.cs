@@ -27,6 +27,8 @@ namespace DAL.Data
 				.HasConversion(
 					v => v.ToString(),
 					v => Enum.Parse<MemberPermissions>(v));
+			modelBuilder.Entity<ClubDiscussionBook>()
+				.HasKey(c => new { c.BookID, c.DiscussionID });
 			base.OnModelCreating(modelBuilder);
 		}
 

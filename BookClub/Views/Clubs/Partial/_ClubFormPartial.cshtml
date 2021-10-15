@@ -1,5 +1,7 @@
 ﻿@model DAL.Models.Club
 
+@Html.HiddenFor(m => m.ID)
+
 <strong><label class="display-8" asp-for="Name"></label></strong>
 <br />
 <input type="text" class="display-8 line-field" placeholder="Name" maxlength="50" style="width:100%" asp-for="Name">

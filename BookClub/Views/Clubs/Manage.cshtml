@@ -1,0 +1,65 @@
+﻿@{
+    Layout = "_ClubsMenuLayout";
+}
+
+@model DAL.Models.Club
+
+@{
+    (string className, int maxLen)[] classNameLen = { ("display-4", 30), ("display-5", 50), ("display-7", 70) };
+    int currentClassNameLenInd = 0;
+    while (Model.Name.Length > classNameLen[currentClassNameLenInd].maxLen
+        && currentClassNameLenInd < classNameLen.Length - 1)
+        currentClassNameLenInd++;
+    string nameClass = classNameLen[currentClassNameLenInd].className;
+}
+
+@section Header{
+    <div class="d-flex justify-content-center">
+        <span class="@nameClass col-sm">@Model.Name</span>
+        <button class="btn btn-outline-primary display-6 d-inline-block align-middle position-absolute"
+                style="height: auto; right: 1.5rem; margin-top: .8rem"
+                onclick="location.href='@Url.Action("Edit", "Clubs", new { id = Model.ID })'">
+            Edit
+        </button>
+    </div>
+}
+
+<br />
+<p class="display-8 float-left w-75">@Model.Description</p>
+<img class="float-right w-25 h-25" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0jfB_Q5HzpKJjpgRtrxhfhBWL8wZqXuLylA&usqp=CAU">
+
+<p class="w-100" style="display:grid; margin:0;" />
+<br />
+<h1 class="display-5 v3">Active Discussions</h1>
+<button class="btn btn-success display-8"
+        onclick="location.href='@Url.Action("Add", "Discussion", new { id = Model.ID })'">
+    Add discussion
+</button>
+<br />
+<br />
+@if (Model.Discussions != null && Model.Discussions.Count > 0)
+{
+    await Html.RenderPartialAsync("Partial/_DiscussionTable", Model.Discussions);
+}
+else
+{
+    <h1 class="display-5 v2 text-description mb-2">Nothing here yet!</h1>
+    <br />
+}
+<br />
+<h1 class="display-5 v3">Club Books</h1>
+<button class="btn btn-success display-8"
+        onclick="location.href='@Url.Action("AddBook", "Clubs", new { id = Model.ID })'">
+    Add book
+</button>
+<br />
+<br />
+@if (Model.Books != null && Model.Books.Count > 0)
+{
+    await Html.RenderPartialAsync("Partial/_ClubBookTable", Model.Discussions);
+}
+else
+{
+    <h1 class="display-5 v2 text-description">Nothing here yet!</h1>
+    <br />
+}

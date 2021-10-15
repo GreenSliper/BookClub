@@ -9,7 +9,7 @@ namespace DAL.Models
 {
 	public class Club
 	{
-		public int ID { get; set; }
+		public int? ID { get; set; }
 
 		[Display(Name = "Club Name")]
 		[Required(AllowEmptyStrings = false, ErrorMessage = "Club name must be assigned")]
@@ -25,6 +25,7 @@ namespace DAL.Models
 		public bool IsPublic { get; set; }
 		public ReaderUser Creator { get; set; }
 		public ICollection<ClubMember> Members { get; set; }
-		public ICollection<Book> Books { get; set; }
+		public ICollection<ClubBook> Books { get; set; }
+		public ICollection<ClubDiscussion> Discussions { get; set; }
 	}
 }

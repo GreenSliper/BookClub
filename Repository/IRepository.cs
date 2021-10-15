@@ -9,7 +9,7 @@ namespace Repository
 	{
 		Task<IEnumerable<ModelT>> GetAll();
 		Task Insert(ModelT model);
-		Task Update(ModelT model);
+		Task Update(ModelT old, ModelT updated);
 		Task Delete(ModelT model);
 		Task<ModelT> Get(KeyT id);
 		Task SaveChanges();

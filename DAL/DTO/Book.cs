@@ -15,5 +15,6 @@ namespace DAL.DTO
 		public virtual ReaderUser AddedByUser { get; set; }
 		public virtual ICollection<ClubBook> Clubs { get; set; }
 		public virtual ICollection<ReadBook> ReadBy { get; set; }
+		public virtual ICollection<ClubDiscussionBook> IncludedInDiscussions { get; set; }
 	}
 }

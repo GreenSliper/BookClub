@@ -1,0 +1,23 @@
+﻿@model IEnumerable<DAL.Models.ClubBook>
+
+<table class="text-center w-100">
+    <tr>
+        <th>
+            <p class="display-7 v2"><strong>Book</strong></p>
+        </th>
+        <th>
+            <p class="display-7 v2"><strong>Author</strong></p>
+        </th>
+        <th>
+            <p class="display-7 v2"><strong>Read by</strong></p>
+        </th>
+    </tr>
+</table>
+<div class="w-100" style="max-height: 300px; overflow:auto;">
+    <table class="text-center w-100">
+        @foreach (var d in Model)
+        {
+            await Html.RenderPartialAsync("_ClubBookTableRow", d);
+        }
+    </table>
+</div>

@@ -3,15 +3,17 @@ using System;
 using DAL.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211014163656_DiscussionsDescriptions")]
+    partial class DiscussionsDescriptions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -83,9 +85,6 @@ namespace DAL.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("AddedTime")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<DateTime?>("ReadUntil")
                         .HasColumnType("timestamp without time zone");
 
                     b.HasKey("ClubID", "BookID");

@@ -1,0 +1,14 @@
+﻿
+@model DAL.Models.ClubDiscussion
+
+<tr>
+    <td>
+        <a class="display-8" asp-controller="Discussion" asp-action="ViewDiscussion" asp-route-id="@Model.ID">@Model.Name</a>
+    </td>
+    <td>
+        <p class="display-8 mb-0">@Model.Time.ToLocalTime().ToString("g")</p>
+    </td>
+    <td>
+        <p class="display-8 mb-0">@Model.Books.Count</p>
+    </td>
+</tr>
