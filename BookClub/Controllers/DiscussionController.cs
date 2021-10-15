@@ -18,17 +18,17 @@ namespace BookClub.Controllers
 			this.clubService = clubService;
 		}
 		[Authorize]
-		public async Task<IActionResult> Add(int clubId)
+		public async Task<IActionResult> Add(int id)
 		{
 			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			var request = await clubService.CanUserManageClub(clubId, userid);
+			var request = await clubService.CanUserManageClub(id, userid);
 			if (request.successful)
 			{
 				return View(new ClubDiscussion {Club = request.requestedClub});
 			}
 			//access denied or club not found
 			//redirect back to club
-			return RedirectToAction("ViewClub", "Clubs", new { clubId });
+			return RedirectToAction("ViewClub", "Clubs", new { id });
 		}
 	}
 }

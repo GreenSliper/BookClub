@@ -67,6 +67,8 @@ namespace Service
 		public async Task<ClubActionRequestResult> CanUserManageClub(int clubId, string userId)
 		{
 			var club = await clubRepos.Get(clubId);
+			if (club == null)
+				return new ClubActionRequestResult(false);
 			if (club.Creator?.Id == userId)
 				return new ClubActionRequestResult(true, mapper.Map<Club>(club));
 			DAL.DTO.MemberPermissions? perm;
