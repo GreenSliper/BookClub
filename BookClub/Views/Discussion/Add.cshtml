@@ -1,2 +1,24 @@
 ﻿@{
+    Layout = "_ClubsMenuLayout";
 }
+
+@model DAL.Models.ClubDiscussion
+
+@section Header{
+    <h1 class="display-6 col-sm">@Model.Club.Name - Add Discussion</h1>
+}
+
+<br>
+<form method="post" asp-controller="Discussion" asp-action="Add" asp-validation-summary="All">
+    <div>
+        <input type="hidden" asp-for="Club">
+        @{
+            await Html.RenderPartialAsync("Partial/_DiscussionFormPartial", Model);
+        }
+
+        <br /><br />
+        <div style="text-align:center">
+            <input type="submit" value="Add discussion" class="display-6">
+        </div>
+    </div>
+</form>

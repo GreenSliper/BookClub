@@ -30,5 +30,11 @@ namespace BookClub.Controllers
 			//redirect back to club
 			return RedirectToAction("ViewClub", "Clubs", new { id });
 		}
+		
+		[Authorize]
+		public IActionResult AddBookToDiscussion(int id)
+		{
+			return PartialView("Partial/_DiscussionBookTableRow", new ClubDiscussionBook());
+		}
 	}
 }
