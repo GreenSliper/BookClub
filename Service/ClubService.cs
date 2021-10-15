@@ -64,17 +64,18 @@ namespace Service
 			return null;
 		}
 
-		public async Task<bool> CanUserManageClub(int clubId, string userId)
+		public async Task<ClubActionRequestResult> CanUserManageClub(int clubId, string userId)
 		{
 			var club = await clubRepos.Get(clubId);
 			if (club.Creator?.Id == userId)
-				return true;
+				return new ClubActionRequestResult(true, mapper.Map<Club>(club));
 			DAL.DTO.MemberPermissions? perm;
 			if ((perm = club.Members.FirstOrDefault(x => x.UserID == userId)?.PermissionLevel) != null)
 			{
-				return (int)perm > (int)DAL.DTO.MemberPermissions.Reader;
+				if((int)perm > (int)DAL.DTO.MemberPermissions.Reader)
+					return new ClubActionRequestResult(true, mapper.Map<Club>(club));
 			}
-			return false;
+			return new ClubActionRequestResult(false);
 		}
 
 		public async Task<bool> TryUpdateClub(Club club, ModelStateDictionary modelState)

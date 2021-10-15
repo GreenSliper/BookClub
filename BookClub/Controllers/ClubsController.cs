@@ -73,13 +73,13 @@ namespace BookClub.Controllers
 			if (User.Identity.IsAuthenticated)
 			{
 				userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-				if (await clubService.CanUserManageClub(id, userid))
+				if ((await clubService.CanUserManageClub(id, userid)).successful)
 					return RedirectToAction("Manage", new { id });
 			}
 			var club = await clubService.GetClubView(id, userid);
-			if (club != null) //not found / no access
+			if (club != null)
 				return View(club);
-			else //TODO to error 404 page
+			else //TODO to error not found / no access page
 				return RedirectToAction("Index");
 		}
 		
@@ -87,8 +87,9 @@ namespace BookClub.Controllers
 		public async Task<IActionResult> Manage(int id)
 		{
 			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			if (await clubService.CanUserManageClub(id, userid))
-				return View(await clubService.GetClubView(id, userid));
+			var request = await clubService.CanUserManageClub(id, userid);
+			if (request.successful)
+				return View(request.requestedClub);
 			else
 				return RedirectToAction("ViewClub", new { id });
 		}
@@ -97,8 +98,9 @@ namespace BookClub.Controllers
 		public async Task<IActionResult> Edit(int id)
 		{
 			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			if (await clubService.CanUserManageClub(id, userid))
-				return View(await clubService.GetClubView(id, userid));
+			var request = await clubService.CanUserManageClub(id, userid);
+			if (request.successful)
+				return View(request.requestedClub);
 			else
 				return RedirectToAction("ViewClub", new { id });
 		}
@@ -109,7 +111,7 @@ namespace BookClub.Controllers
 		public async Task<IActionResult> Edit([FromForm] Club club)
 		{
 			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			if (club.ID.HasValue && await clubService.CanUserManageClub(club.ID.Value, userid))
+			if (club.ID.HasValue && (await clubService.CanUserManageClub(club.ID.Value, userid)).successful)
 			{
 				if (await clubService.TryUpdateClub(club, ModelState))
 					return RedirectToAction("ViewClub", new { club.ID });
