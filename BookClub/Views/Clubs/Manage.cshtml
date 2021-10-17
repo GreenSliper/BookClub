@@ -49,14 +49,14 @@ else
 <br />
 <h1 class="display-5 v3">Club Books</h1>
 <button class="btn btn-success display-8"
-        onclick="location.href='@Url.Action("AddBook", "Clubs", new { id = Model.ID })'">
+        onclick="location.href='@Url.Action("AddBooks", "Clubs", new { id = Model.ID })'">
     Add book
 </button>
 <br />
 <br />
 @if (Model.Books != null && Model.Books.Count > 0)
 {
-    await Html.RenderPartialAsync("Partial/_ClubBookTable", Model.Discussions);
+    await Html.RenderPartialAsync("Partial/_ClubBookTable", Model.Books);
 }
 else
 {

@@ -17,10 +17,13 @@ namespace Service
 		private readonly IRepository<ReaderUser, string> userRepos;
 		private readonly IRepository<DAL.DTO.Club, int> clubRepos;
 		private readonly IMapper mapper;
-		public ClubService(IRepository<ReaderUser, string> userRepos, IRepository<DAL.DTO.Club, int> clubRepos, IMapper mapper)
+		private readonly IAccessService accessService;
+		public ClubService(IRepository<ReaderUser, string> userRepos, 
+			IRepository<DAL.DTO.Club, int> clubRepos, IAccessService accessService, IMapper mapper)
 		{
 			this.userRepos = userRepos;
 			this.clubRepos = clubRepos;
+			this.accessService = accessService;
 			this.mapper = mapper;
 		}
 		public async Task<IEnumerable<Club>> GetUserClubs(string userId)
@@ -35,7 +38,7 @@ namespace Service
 		{
 			//logics: creator/manager of the club is always the member
 			return from m in (await userRepos.Get(userId)).Memberships
-				   where (int)m.PermissionLevel>(int)DAL.DTO.MemberPermissions.Reader || m.Club.Creator.Id == userId
+				   where (int)m.PermissionLevel>=(int)accessService.MinimalToManage || m.Club.Creator.Id == userId
 				   select mapper.Map<Club>(m.Club);
 		}
 
@@ -58,26 +61,16 @@ namespace Service
 
 		public async Task<Club> GetClubView(int id, string userId)
 		{
-			var dto = await clubRepos.Get(id);
-			if(dto.IsPublic || dto.Members.FirstOrDefault(x=>x.UserID == userId)!=null)
-				return mapper.Map<Club>(dto);
+			var request = await accessService.CanUserViewClub(id, userId);
+			if(request.successful)
+				return mapper.Map<Club>(request.requestedModel);
 			return null;
 		}
 
-		public async Task<ClubActionRequestResult> CanUserManageClub(int clubId, string userId)
+		public async Task<ModelActionRequestResult<Club>> CanUserManageClub(int clubId, string userId)
 		{
-			var club = await clubRepos.Get(clubId);
-			if (club == null)
-				return new ClubActionRequestResult(false);
-			if (club.Creator?.Id == userId)
-				return new ClubActionRequestResult(true, mapper.Map<Club>(club));
-			DAL.DTO.MemberPermissions? perm;
-			if ((perm = club.Members.FirstOrDefault(x => x.UserID == userId)?.PermissionLevel) != null)
-			{
-				if((int)perm > (int)DAL.DTO.MemberPermissions.Reader)
-					return new ClubActionRequestResult(true, mapper.Map<Club>(club));
-			}
-			return new ClubActionRequestResult(false);
+			var result = await accessService.CanUserManageClub(clubId, userId);
+			return new ModelActionRequestResult<Club>(result.successful, mapper.Map<Club>(result.requestedModel));
 		}
 
 		public async Task<bool> TryUpdateClub(Club club, ModelStateDictionary modelState)
@@ -89,6 +82,25 @@ namespace Service
 				await clubRepos.Update(old, updated);
 			}
 			return false;
+		}
+
+		public async Task<bool> TryAddBooks(IEnumerable<int> bookIds, int clubId, string userId)
+		{
+			var request = await accessService.CanUserManageClub(clubId, userId);
+			if (!request.successful || request.requestedModel == null)
+				return false;
+			var user = await userRepos.Get(userId);
+			var dto = request.requestedModel;
+			foreach (var bookId in bookIds)
+				dto.Books.Add(new DAL.DTO.ClubBook() 
+				{ 
+					AddedByUser = user,
+					Club = dto,
+					BookID = bookId,
+					AddedTime = DateTime.Now
+				});
+			await clubRepos.Update(dto);
+			return true;
 		}
 	}
 }

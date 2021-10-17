@@ -1,0 +1,38 @@
+﻿@{
+    Layout = "_ClubsMenuLayout";
+}
+
+@model BookPickerModel
+
+@section Header
+{
+    <h1 class="display-5">@ViewBag.Club.Name - Add books</h1>
+}
+
+<br>
+<form method="post" asp-controller="Clubs" asp-action="AddBooks" asp-validation-summary="All">
+    @Html.HiddenFor(m => m.entityID)
+    <div class="text-center">
+        <table class="w-100">
+            <tr>
+                <th>
+                    <h1 class="display-7 v2"><strong>Book</strong></h1>
+                </th>
+                <th>
+                    <h1 class="display-7 v2"><strong>Author</strong></h1>
+                </th>
+                <th>
+                    <h1 class="display-7 v2"><strong>Add</strong></h1>
+                </th>
+            </tr>
+            @{
+                await Html.RenderPartialAsync("../Book/Partial/_BookPicker", Model);
+            }
+        </table>
+
+        <br /><br />
+        <div style="text-align:center">
+            <input type="submit" value="Add selected" class="display-6">
+        </div>
+    </div>
+</form>

@@ -1,0 +1,31 @@
+﻿@{
+    ViewData["Title"] = "Books";
+    Layout = "_SectionPageLayout";
+}
+
+@section Header
+{
+    <h1 class="display-4">Books</h1>
+}
+
+@section Contents
+{
+    <div class="text-center">
+        <a class="nav-link text-dark" asp-area="" asp-controller="Book" asp-action="Library"><h1 class="display-6">Library</h1></a>
+        <h1 class="display-8 text-description">View the list of all books present in the global library</h1>
+        <hr class="bg-dark margin-no-vertical border-dark" style="width:50%">
+        <br />
+        <a class="nav-link text-dark" asp-area="" asp-controller="book" asp-action="Add"><h1 class="display-6">Add</h1></a>
+        <h1 class="display-8 text-description">Add book to global library</h1>
+        <hr class="bg-dark margin-no-vertical border-dark" style="width:50%">
+    </div>
+}
+
+@section AboutSection
+{
+    <h1 class="display-7">About books</h1>
+    <h1 class="display-8">
+        Book is one of the most important entities in the app. Books can be added to global library, then to clubs' reading
+        lists. After that club managers can add them to discussions. Users are able to rate books and write reviews.
+    </h1>
+}

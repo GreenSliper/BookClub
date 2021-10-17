@@ -1,4 +1,5 @@
-﻿using DAL.Models;
+﻿using BookClub.Models;
+using DAL.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,9 +15,11 @@ namespace BookClub.Controllers
 	public class ClubsController : Controller
 	{
 		private readonly IClubService clubService;
-		public ClubsController(IClubService clubService)
+		private readonly IBookService bookService;
+		public ClubsController(IClubService clubService, IBookService bookService)
 		{
 			this.clubService = clubService;
+			this.bookService = bookService;
 		}
 		public IActionResult Index()
 		{
@@ -89,7 +92,7 @@ namespace BookClub.Controllers
 			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
 			var request = await clubService.CanUserManageClub(id, userid);
 			if (request.successful)
-				return View(request.requestedClub);
+				return View(request.requestedModel);
 			else
 				return RedirectToAction("ViewClub", new { id });
 		}
@@ -100,7 +103,7 @@ namespace BookClub.Controllers
 			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
 			var request = await clubService.CanUserManageClub(id, userid);
 			if (request.successful)
-				return View(request.requestedClub);
+				return View(request.requestedModel);
 			else
 				return RedirectToAction("ViewClub", new { id });
 		}
@@ -119,6 +122,38 @@ namespace BookClub.Controllers
 					; //TODO err page
 			}
 			return RedirectToAction("ViewClub", new { club.ID });
+		}
+
+		[Authorize]
+		public async Task<IActionResult> AddBooks(int id)
+		{
+			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			var request = await clubService.CanUserManageClub(id, userid);
+			if (request.successful) {
+				var allBooks = await bookService.GetAllBooks();
+				var targetBooks = from b in allBooks
+								  where !request.requestedModel.Books.Any(x => x.Book.ID == b.ID)
+								  select b;
+				BookPickerModel bpm = new BookPickerModel(id, targetBooks);
+				ViewBag.BookList = targetBooks;
+				ViewBag.Club = request.requestedModel;
+				return View(bpm);
+			} else
+				return RedirectToAction("ViewClub", new { id });
+		}
+
+		[Authorize]
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> AddBooks([FromForm] BookPickerModel bpm)
+		{
+			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			var added = new List<int>();
+			for (int i = 0; i < bpm.ids.Count; i++)
+				if (bpm.added[i])
+					added.Add(bpm.ids[i]);
+			await clubService.TryAddBooks(added, bpm.entityID, userid);
+			return RedirectToAction("ViewClub", new { id = bpm.entityID });
 		}
 	}
 }

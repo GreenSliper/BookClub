@@ -1,0 +1,23 @@
+﻿@{
+    Layout = "_Layout";
+}
+
+@model DAL.Models.Book
+
+<h1 class="display-4">Add Book</h1>
+<br>
+<p class="text-description">Please, check twice if the book is not already in added!</p>
+<br>
+<form method="post" asp-controller="Book" asp-action="Add" asp-validation-summary="All">
+    <div class="club-box">
+
+        @{
+            await Html.RenderPartialAsync("Partial/_BookFormPartial", Model);
+        }
+
+        <br /><br />
+        <div style="text-align:center">
+            <input type="submit" value="Add Book" class="display-6">
+        </div>
+    </div>
+</form>

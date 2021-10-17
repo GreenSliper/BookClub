@@ -159,7 +159,15 @@ input[type=submit] {
     cursor: pointer;
 }
 
+.table-fix-head {
+    overflow: auto;
+}
 
+    .table-fix-head thead th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
 
 .v1 {
     font-size: calc((0.5vh + 1vw)*0.7) !important;

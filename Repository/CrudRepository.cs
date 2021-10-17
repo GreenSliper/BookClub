@@ -43,11 +43,17 @@ namespace Repository
 			await SaveChanges();
 		}
 
-		public virtual async Task Update(ModelT old, ModelT updated)
+		/// <summary>
+		/// Use updated param when you re-create the source object (ex.: edit view)
+		/// </summary>
+		public virtual async Task Update(ModelT old, ModelT updated = null)
 		{
 			CheckNull(old);
-			//avoid proxy data loss
-			context.Entry(old).CurrentValues.SetValues(updated);
+			if (updated != null)
+			{
+				//avoid proxy data loss
+				context.Entry(old).CurrentValues.SetValues(updated);
+			}
 			entities.Update(old);
 			await SaveChanges();
 		}

@@ -1,0 +1,32 @@
+﻿@{
+    Layout = "_Layout";
+    /*TODO
+    - refs in partial
+    - maybe layout
+    */
+}
+
+<h1 class="display-4 text-center">Library</h1>
+
+@model IEnumerable<DAL.Models.Book>
+
+<br />
+<br />
+<table class="text-center w-100">
+    <tr>
+        <th>
+            <p class="display-7 v2"><strong>Book</strong></p>
+        </th>
+        <th>
+            <p class="display-7 v2"><strong>Author</strong></p>
+        </th>
+    </tr>
+     @foreach (var c in Model)
+     {
+        <tr>
+            @{
+                await Html.RenderPartialAsync("Partial/_BookTableRow", c);
+            }
+        </tr>
+     }
+</table>

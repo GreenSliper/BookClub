@@ -60,9 +60,16 @@ namespace BookClub
 			IMapper mapper = mapperConfig.CreateMapper();
 			services.AddSingleton(mapper);
 
+			//repository
 			services.AddTransient<IRepository<ReaderUser, string>, UserRepository<ApplicationDbContext>>();
 			services.AddTransient<IRepository<Club, int>, ClubRepository<ApplicationDbContext>>();
+			services.AddTransient<IRepository<Book, int>, BookRepository<ApplicationDbContext>>();
+			services.AddTransient<IRepository<ClubDiscussion, int>, DiscussionRepository<ApplicationDbContext>>();
+			//services
+			services.AddTransient<IAccessService, AccessService>();
 			services.AddTransient<IClubService, ClubService>();
+			services.AddTransient<IDiscussionService, DiscussionService>();
+			services.AddTransient<IBookService, BookService>();
 
 			services.AddControllersWithViews();
 			services.AddRazorPages();

@@ -1,0 +1,29 @@
+﻿@model IEnumerable<(DAL.Models.ClubBook book, bool add)>
+
+<table class="text-center w-100 table-fix-head" style="max-height: 300px;">
+    <tr>
+        <th>
+            <p class="display-7 v2"><strong>Book</strong></p>
+        </th>
+        <th>
+            <p class="display-7 v2"><strong>Author</strong></p>
+        </th>
+    </tr>
+    @{
+        int num = 0;
+        foreach (var i in Model)
+        {
+        <tr>
+            <td>
+                <p class="display-8 v2">@i.book.Book.Name</p>
+            </td>
+            <td>
+                <p class="display-8 v2">@i.book.Book.Author</p>
+            </td>
+            <td>
+                <input style="width:1.6rem; height:1.6rem;" asp-for="@i.add">
+            </td>
+        </tr>
+        }
+    }
+</table>

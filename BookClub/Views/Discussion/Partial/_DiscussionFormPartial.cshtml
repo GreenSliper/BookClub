@@ -20,30 +20,3 @@
 <br />
 <input class="display-8 form-control w-auto" asp-for="Time" asp-format="{0:yyyy-MM-ddTHH:mm}">
 <span class="display-8" style="color:red;" asp-validation-for="Time"></span>
-<br />
-<br />
-<h1 class="display-7">Included books</h1>
-<br />
-<button class="btn btn-success display-8"
-        >
-    +
-</button>
-<br />
-@{
-    if (Model.Books != null && Model.Books.Count > 0)
-    {
-        await Html.RenderPartialAsync("Partial/_DiscussionBookTable", Model.Books);
-        //to prevent books data loss
-        @for (int i = 0; i < Model.Books.Count; i++)
-        {
-            <input type="hidden" asp-for="Books.ElementAt(i)">
-        }
-    }
-    else
-    {
-        <h1 class="display-5 v2 text-description">Nothing here yet!</h1>
-        <br />
-    }
-}
-<br />
-<br />
