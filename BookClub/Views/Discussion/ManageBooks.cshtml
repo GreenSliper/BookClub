@@ -1,0 +1,25 @@
+﻿@{
+    Layout = "_ClubsMenuLayout";
+}
+
+@section Header
+{
+    <h1 class="display-5">@Model.Name - Manage Books</h1>
+}
+
+@model DAL.Models.ClubDiscussion
+
+<br>
+<form method="post" asp-controller="Discussion" asp-action="ManageBooks" asp-validation-summary="All">
+    <div class="text-center">
+        @{
+            ViewBag.ClubDiscussionBookEditable = true;
+            ViewBag.ClubDiscussionBookRemovable = false; //TODO TRUE
+            await Html.RenderPartialAsync("Partial/_DiscussionBookTable", Model);
+        }
+        <br /><br />
+        <div style="text-align:center">
+            <input type="submit" value="Apply" class="display-6">
+        </div>
+    </div>
+</form>

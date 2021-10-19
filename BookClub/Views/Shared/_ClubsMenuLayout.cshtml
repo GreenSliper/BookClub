@@ -8,7 +8,8 @@
             <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
                 <li class="w-100">
                     <a asp-area="" asp-controller="Clubs" asp-action="MyClubs" class="nav-link font-weight-bold px-0">
-                    My <span class="d-none d-sm-inline">Clubs</span></a>
+                        My <span class="d-none d-sm-inline">Clubs</span>
+                    </a>
                 </li>
                 <li class="w-100">
                     <a asp-area="" asp-controller="Clubs" asp-action="Managed" class="nav-link font-weight-bold px-0">
@@ -41,3 +42,8 @@
 </div>
 
 @RenderBody()
+
+@section Scripts
+{
+    @RenderSection("Scripts", required: false)
+}

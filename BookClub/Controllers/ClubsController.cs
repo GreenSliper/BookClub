@@ -134,10 +134,8 @@ namespace BookClub.Controllers
 				var targetBooks = from b in allBooks
 								  where !request.requestedModel.Books.Any(x => x.Book.ID == b.ID)
 								  select b;
-				BookPickerModel bpm = new BookPickerModel(id, targetBooks);
 				ViewBag.BookList = targetBooks;
-				ViewBag.Club = request.requestedModel;
-				return View(bpm);
+				return View(request.requestedModel);
 			} else
 				return RedirectToAction("ViewClub", new { id });
 		}
@@ -145,15 +143,14 @@ namespace BookClub.Controllers
 		[Authorize]
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> AddBooks([FromForm] BookPickerModel bpm)
+		public async Task<IActionResult> AddBooksConfirm(Club club)
 		{
 			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			var added = new List<int>();
-			for (int i = 0; i < bpm.ids.Count; i++)
-				if (bpm.added[i])
-					added.Add(bpm.ids[i]);
-			await clubService.TryAddBooks(added, bpm.entityID, userid);
-			return RedirectToAction("ViewClub", new { id = bpm.entityID });
+			//magic is that the list is auto-converted to array
+			var idList = TempData["SelectedBookList"] as int[];
+			TempData.Remove("SelectedBookList");
+			await clubService.TryAddBooks(idList, club.ID.Value, userid);
+			return RedirectToAction("ViewClub", new { id = club.ID.Value });
 		}
 	}
 }

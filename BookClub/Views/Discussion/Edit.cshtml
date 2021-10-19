@@ -1,0 +1,52 @@
+﻿@{
+    //Requires ViewBag.ClubId
+    Layout = "_ClubsMenuLayout";
+}
+
+@model DAL.Models.ClubDiscussion
+
+@section Scripts{
+    <script type="text/javascript">
+    function ToggleBook(id)
+    {
+        var req = {
+            targId: id,
+            listName : 'SelectedBookList'
+        };
+        $.ajax({
+            type: 'POST',
+            url: '/Function/ViewDataToggleIDList',
+            data: req,
+            success: function () { }
+        });
+        var row = document.getElementById(id);
+        row.style.display = 'none';
+    }
+    </script>
+}
+
+@section Header{
+    <h1 class="display-5">@Model.Club.Name - @Model.Name</h1>
+}
+
+<form method="post" asp-controller="Discussion" asp-action="Edit" asp-validation-summary="All">
+    <div>
+        @Html.HiddenFor(x => x.ID)
+        @Html.HiddenFor(x => x.Club.ID)
+        @{
+            await Html.RenderPartialAsync("Partial/_DiscussionFormPartial", Model);
+            <br>
+            <h1 class="display-7 mb-2"><strong>Books</strong></h1>
+            <br>
+            ViewBag.ClubDiscussionBookEditable = true;
+            ViewBag.ClubDiscussionBookRemovable = true;
+            await Html.RenderPartialAsync("Partial/_DiscussionBookTable", Model);
+        }
+        <br>
+        <br>
+        <div style="text-align:center">
+            <input type="submit" value="Confirm changes" class="display-6 p-2 pb-3">
+        </div>
+    </div>
+</form>
+<br>

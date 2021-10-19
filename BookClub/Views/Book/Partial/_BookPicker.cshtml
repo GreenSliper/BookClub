@@ -3,9 +3,6 @@
     returns list of bookId's
 *@
 
-@model BookPickerModel
-
-@Html.HiddenFor(m => m.entityID)
 @{
     int num = -1;
     foreach (DAL.Models.Book b in ViewBag.BookList)
@@ -16,8 +13,7 @@
                 num++;
             }
             <td>
-                <input style="width:1.6rem; height:1.6rem;" asp-for="@Model.added[num]">
-                @Html.HiddenFor(m => m.ids[num])
+                <input type="checkbox" style="width:1.6rem; height:1.6rem;" onclick="ToggleBook(@b.ID)">
             </td>
         </tr>
     }

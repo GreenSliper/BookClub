@@ -2,16 +2,32 @@
     Layout = "_ClubsMenuLayout";
 }
 
-@model BookPickerModel
+@model DAL.Models.Club
 
 @section Header
 {
-    <h1 class="display-5">@ViewBag.Club.Name - Add books</h1>
+    <h1 class="display-5">@Model.Name - Add books</h1>
 }
-
+@section Scripts{
+    <script type="text/javascript">
+    function ToggleBook(id)
+    {
+        var req = {
+            targId: id,
+            listName : 'SelectedBookList'
+        };
+        $.ajax({
+            type: 'POST',
+            url: '/Function/ViewDataToggleIDList',
+            data: req,
+            success: function () { }
+          });
+    }
+    </script>
+}
 <br>
-<form method="post" asp-controller="Clubs" asp-action="AddBooks" asp-validation-summary="All">
-    @Html.HiddenFor(m => m.entityID)
+<form method="post" asp-controller="Clubs" asp-action="AddBooksConfirm" asp-validation-summary="All">
+    @Html.HiddenFor(m => m.ID)
     <div class="text-center">
         <table class="w-100">
             <tr>
@@ -26,7 +42,8 @@
                 </th>
             </tr>
             @{
-                await Html.RenderPartialAsync("../Book/Partial/_BookPicker", Model);
+                await Html.RenderPartialAsync("../Book/Partial/_BookPicker");
+                TempData.Keep("SelectedBookList");
             }
         </table>
 

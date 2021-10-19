@@ -50,7 +50,7 @@ namespace Service
 			//Maybe replace with discussionRepos? TODO
 			if (!modelState.IsValid)
 				return new ModelActionRequestResult<ClubDiscussion>(false);
-			DAL.DTO.Club club = null;
+			DAL.DTO.Club club;
 			club = await clubRepos.Get(clubId);
 			if (club == null)
 				return new ModelActionRequestResult<ClubDiscussion>(false);
@@ -66,11 +66,53 @@ namespace Service
 		public async Task<ClubDiscussion> TryGetDiscussion(int discId, string userId)
 		{
 			var dto = await discussionRepos.Get(discId);
-			if (dto.Club.IsPublic || dto.Club.Members.Any(x => x.UserID == userId))
-			{
+			if (dto.Club.IsPublic || (userId!=null && dto.Club.Members.Any(x => x.UserID == userId)))
 				return mapper.Map<ClubDiscussion>(dto);
-			}
 			return null;
+		}
+
+		public async Task<bool> TryRefreshBooksPriorities(IEnumerable<ClubDiscussionBook> discussionBooks, 
+			int discId, string userId)
+		{
+			var dto = await discussionRepos.Get(discId);
+			if (!accessService.CanUserManageClub(dto.Club, userId))
+				return false;
+			RefreshBooksPriorities(dto.Books, discussionBooks);
+			await discussionRepos.Update(dto);
+			return true;
+		}
+
+		void RefreshBooksPriorities(IEnumerable<DAL.DTO.ClubDiscussionBook> old, IEnumerable<ClubDiscussionBook> updated)
+		{
+			foreach (var bk in updated)
+			{
+				var edited = old.FirstOrDefault(x => x.BookID == bk.Book.ID);
+				if (edited != null)
+					edited.Priority = bk.Priority;
+			}
+		}
+
+		public async Task<bool> TryUpdateDiscussion(ClubDiscussion discussion,
+			ModelStateDictionary modelState, IEnumerable<int> removedBookIds, string userId)
+		{
+			if (!modelState.IsValid)
+				return false;
+			var dto = await discussionRepos.Get(discussion.ID);
+			if (!accessService.CanUserManageClub(dto.Club, userId))
+				return false;
+			
+			//update fields: manual, because some fields are not affected
+			dto.Name = discussion.Name;
+			dto.Description = discussion.Description;
+			dto.Time = discussion.Time;
+			//remove from list
+			if (removedBookIds != null)
+				foreach (var id in removedBookIds)
+					dto.Books.Remove(dto.Books.FirstOrDefault(x => x.BookID == id));
+			RefreshBooksPriorities(dto.Books, discussion.Books);
+			
+			await discussionRepos.Update(dto);
+			return true;
 		}
 	}
 }

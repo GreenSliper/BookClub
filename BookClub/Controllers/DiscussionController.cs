@@ -42,16 +42,16 @@ namespace BookClub.Controllers
 		public async Task<IActionResult> Add([FromForm] ClubDiscussion discussion)
 		{
 			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			int.TryParse(TempData["ClubId"].ToString(), out int clubId);
-			if(discussion != null)
-			if ((await clubService.CanUserManageClub(clubId, userid)).successful)
-			{
-				var result = await discussionService.TryAddDiscussion(discussion, ModelState, clubId, userid);
-				if (result.successful)
-					return RedirectToAction("AddBooks", new { result.requestedModel.ID });
-				else
-					; //TODO err page
-			}
+			if (int.TryParse(TempData["ClubId"].ToString(), out int clubId))
+				if (discussion != null)
+					if ((await clubService.CanUserManageClub(clubId, userid)).successful)
+					{
+						var result = await discussionService.TryAddDiscussion(discussion, ModelState, clubId, userid);
+						if (result.successful)
+							return RedirectToAction("AddBooks", new { result.requestedModel.ID });
+						else
+							; //TODO err page
+					}
 			return RedirectToAction("Index", "Home" );
 		}
 
@@ -62,21 +62,81 @@ namespace BookClub.Controllers
 			var disc = await discussionService.TryGetDiscussion(id, userid);
 			if (disc != null)
 				ViewBag.BookList = from b in disc.Club.Books select b.Book;
-			return View(new BookPickerModel(id, disc.Club.Books));
+			return View(disc);
 		}
 
 		[Authorize]
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> AddBooks([FromForm] BookPickerModel bpm)
+		public async Task<IActionResult> AddBooks([FromForm] ClubDiscussion disc)
 		{
 			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			var added = new List<int>();
-			for (int i = 0; i < bpm.ids.Count; i++)
-				if (bpm.added[i])
-					added.Add(bpm.ids[i]);
-			await discussionService.TryAddBooks(added, bpm.entityID, userid);
-			return RedirectToAction("View", new { id = bpm.entityID });
+			var added = TempData["SelectedBookList"] as int[];
+			TempData.Remove("SelectedBookList");
+			await discussionService.TryAddBooks(added, disc.ID, userid);
+			return RedirectToAction("ManageBooks", new { id = disc.ID });
+		}
+
+		[Authorize]
+		public async Task<IActionResult> ManageBooks(int id)
+		{
+			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			var disc = await discussionService.TryGetDiscussion(id, userid);
+			return View(disc);
+		}
+
+		[Authorize]
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> ManageBooks([FromForm] List<ClubDiscussionBook> books)
+		{
+			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			if (books == null || books.Count == 0)
+				;//TODO ERR PAGE
+			var discId = books[0].Discussion.ID;
+			await discussionService.TryRefreshBooksPriorities(books, discId, userid);
+			return RedirectToAction("ViewDiscussion", new { id = discId });
+		}
+
+		public async Task<IActionResult> ViewDiscussion(int id)
+		{
+			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			var disc = await discussionService.TryGetDiscussion(id, userid);
+			if (disc != null) {
+				ViewBag.UserCanEdit = (await clubService.CanUserManageClub(disc.Club.ID.Value, userid))
+					.successful;
+				return View(disc);
+			}
+			else
+				;//TODO ERR PAGE
+			return null;
+		}
+
+		[Authorize]
+		public async Task<IActionResult> Edit(int id) 
+		{
+			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			var disc = await discussionService.TryGetDiscussion(id, userid);
+			if (disc != null)
+			{
+				ViewBag.UserCanEdit = await clubService.CanUserManageClub(disc.Club.ID.Value, userid);
+				return View(disc);
+			}
+			else
+				return RedirectToAction("ViewDiscussion", new { id });
+		}
+		
+		[Authorize]
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> Edit([FromForm]ClubDiscussion discussion)
+		{
+			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			var removed = TempData["SelectedBookList"] as int[];
+			TempData.Remove("SelectedBookList");
+			if (await discussionService.TryUpdateDiscussion(discussion, ModelState, removed, userid))
+				return RedirectToAction("ViewDiscussion", new { id = discussion.ID });
+			return View();
 		}
 	}
 }

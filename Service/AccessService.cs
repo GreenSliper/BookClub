@@ -11,31 +11,36 @@ namespace Service
 {
 	public class AccessService : IAccessService
 	{
-		private readonly IRepository<ReaderUser, string> userRepos;
 		private readonly IRepository<DAL.DTO.Club, int> clubRepos;
 
 		private readonly MemberPermissions minimalToManage = MemberPermissions.Manager;
 		public MemberPermissions MinimalToManage => minimalToManage;
 
-		public AccessService(IRepository<ReaderUser, string> userRepos, IRepository<DAL.DTO.Club, int> clubRepos)
+		public AccessService(IRepository<DAL.DTO.Club, int> clubRepos)
 		{
-			this.userRepos = userRepos;
 			this.clubRepos = clubRepos;
+		}
+
+		public bool CanUserManageClub(Club club, string userId)
+		{
+			if (club == null)
+				return false;
+			if (club.Creator?.Id == userId)
+				return true;
+			DAL.DTO.MemberPermissions? perm;
+			if ((perm = club.Members.FirstOrDefault(x => x.UserID == userId)?.PermissionLevel) != null)
+			{
+				if ((int)perm >= (int)minimalToManage)
+					return true;
+			}
+			return false;
 		}
 
 		public async Task<ModelActionRequestResult<Club>> CanUserManageClub(int clubId, string userId)
 		{
 			var club = await clubRepos.Get(clubId);
-			if (club == null)
-				return new ModelActionRequestResult<Club>(false);
-			if (club.Creator?.Id == userId)
+			if (CanUserManageClub(club, userId))
 				return new ModelActionRequestResult<Club>(true, club);
-			DAL.DTO.MemberPermissions? perm;
-			if ((perm = club.Members.FirstOrDefault(x => x.UserID == userId)?.PermissionLevel) != null)
-			{
-				if ((int)perm >= (int)minimalToManage)
-					return new ModelActionRequestResult<Club>(true, club);
-			}
 			return new ModelActionRequestResult<Club>(false);
 		}
 

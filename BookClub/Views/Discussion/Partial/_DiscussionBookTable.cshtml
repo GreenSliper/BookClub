@@ -1,6 +1,6 @@
-﻿@model IEnumerable<DAL.Models.ClubDiscussionBook>
+﻿@model DAL.Models.ClubDiscussion
 
-<table class="text-center w-100">
+<table class="text-center w-100 table-fix-head" style="max-height: 300px">
     <tr>
         <th>
             <p class="display-7 v2"><strong>Book</strong></p>
@@ -9,18 +9,39 @@
             <p class="display-7 v2"><strong>Author</strong></p>
         </th>
         <th>
-            <p class="display-7 v2"><strong>Read by</strong></p>
-        </th>
-        <th>
             <p class="display-7 v2"><strong>Priority</strong></p>
         </th>
     </tr>
+    @for (int i = 0; i < Model.Books.Count(); i++)
+    {
+        <tr id="@Model.Books[i].Book.ID">
+            @Html.HiddenFor(x=> x.Books[i].Discussion.ID)
+            @Html.HiddenFor(x=> x.Books[i].Book.ID)
+            <td>
+                <p class="display-7 v2">@Model.Books[i].Book.Name</p>
+            </td>
+            <td>
+                <p class="display-7 v2">@Model.Books[i].Book.Author</p>
+            </td>
+            <td>
+                @if (ViewBag.ClubDiscussionBookEditable)
+                {
+                    <input type="range" class="display-7 v2" min="1" max="5" asp-for="Books[i].Priority">
+                }
+                else
+                {
+                    <p class="display-7 v2">@Model.Books[i].Priority</p>
+                }
+            </td>
+            @if (ViewBag.ClubDiscussionBookRemovable)
+            {
+                <td>
+                    <button type="button" class="btn btn-outline-danger display-6 pt-0"
+                    onclick="ToggleBook(@Model.Books[i].Book.ID)">
+                        -
+                    </button>
+                </td>
+            }
+        </tr>
+    }
 </table>
-<div class="w-100" style="max-height: 300px; overflow:auto;">
-    <table class="text-center w-100">
-        @foreach (var bk in Model)
-        {
-            await Html.RenderPartialAsync("Partial/_DiscussionBookTableRow", bk);
-        }
-    </table>
-</div>

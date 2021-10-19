@@ -1,0 +1,38 @@
+﻿@{
+    Layout = "_ClubsMenuLayout";
+}
+
+@model DAL.Models.ClubDiscussion
+
+@section Header{
+    @if (ViewBag.UserCanEdit)
+    {
+        <div class="d-flex justify-content-center mb-3">
+            <span class="display-6 col-sm">@Model.Club.Name - @Model.Name</span>
+            <button class="btn btn-outline-primary display-6 d-inline-block align-middle position-absolute"
+                    style="height: auto; right: 1.5rem; margin-top: .8rem"
+                    onclick="location.href='@Url.Action("Edit", "Discussion", new { id = Model.ID })'">
+                Edit
+            </button>
+        </div>
+    }
+    else
+    {
+        <h1 class="display-5">@Model.Club.Name - @Model.Name</h1>
+    }
+}
+
+<br>
+<h1 class="display-7"><strong>Start time: @Model.Time.ToString("g")</strong></h1>
+<h1 class="display-8 text-muted">Created by @Model.Creator.UserName</h1>
+<br>
+<h1 class="display-7 mb-2"><strong>Description</strong></h1>
+<h1 class="display-8">@Model.Description</h1>
+<br>
+<h1 class="display-7 mb-2"><strong>Books</strong></h1>
+<br>
+@{ 
+    ViewBag.ClubDiscussionBookEditable = false;
+    ViewBag.ClubDiscussionBookRemovable = false;
+    await Html.RenderPartialAsync("Partial/_DiscussionBookTable", Model);
+}
