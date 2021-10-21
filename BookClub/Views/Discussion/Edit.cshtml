@@ -7,7 +7,7 @@
 
 @section Scripts{
     <script type="text/javascript">
-    function ToggleBook(id)
+    function RemoveBook(id)
     {
         var req = {
             targId: id,
@@ -29,7 +29,7 @@
     <h1 class="display-5">@Model.Club.Name - @Model.Name</h1>
 }
 
-<form method="post" asp-controller="Discussion" asp-action="Edit" asp-validation-summary="All">
+<form method="post" asp-validation-summary="All">
     <div>
         @Html.HiddenFor(x => x.ID)
         @Html.HiddenFor(x => x.Club.ID)
@@ -38,14 +38,25 @@
             <br>
             <h1 class="display-7 mb-2"><strong>Books</strong></h1>
             <br>
-            ViewBag.ClubDiscussionBookEditable = true;
-            ViewBag.ClubDiscussionBookRemovable = true;
-            await Html.RenderPartialAsync("Partial/_DiscussionBookTable", Model);
+            <input type="submit" class="btn btn-success display-8" value="Add books" 
+                   asp-controller="Discussion" asp-action="EditAndAddBooks">
+            <br>
+            if (Model.Books != null && Model.Books.Count > 0)
+            {
+                ViewBag.ClubDiscussionBookEditable = true;
+                ViewBag.ClubDiscussionBookRemovable = true;
+                await Html.RenderPartialAsync("Partial/_DiscussionBookTable", Model);
+            }
+            else
+            {
+                <h1 class="display-7 text-muted">No books here( Add some via "Add" button!</h1>
+            }
         }
         <br>
         <br>
         <div style="text-align:center">
-            <input type="submit" value="Confirm changes" class="display-6 p-2 pb-3">
+            <input type="submit" value="Confirm changes" class="display-6 p-2 pb-3 submit-default" 
+                   asp-controller="Discussion" asp-action="Edit">
         </div>
     </div>
 </form>

@@ -47,11 +47,18 @@ namespace Service
 		public async Task<ModelActionRequestResult<Club>> CanUserViewClub(int clubId, string userId)
 		{
 			var club = await clubRepos.Get(clubId);
-			if (club == null)
-				return new ModelActionRequestResult<Club>(false);
-			if (club.IsPublic || club.Members.Any(x => x.UserID == userId))
+			if (CanUserViewClub(club, userId))
 				return new ModelActionRequestResult<Club>(true, club);
 			return new ModelActionRequestResult<Club>(false);
+		}
+
+		public bool CanUserViewClub(Club club, string userId)
+		{
+			if (club == null)
+				return false;
+			if (club.IsPublic || club.Members.Any(x => x.UserID == userId))
+				return true;
+			return false;
 		}
 	}
 }

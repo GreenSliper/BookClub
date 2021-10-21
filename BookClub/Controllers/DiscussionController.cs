@@ -52,17 +52,17 @@ namespace BookClub.Controllers
 						else
 							; //TODO err page
 					}
-			return RedirectToAction("Index", "Home" );
+			return RedirectToAction("Index", "Home");
 		}
 
 		[Authorize]
 		public async Task<IActionResult> AddBooks(int id)
 		{
 			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			var disc = await discussionService.TryGetDiscussion(id, userid);
-			if (disc != null)
-				ViewBag.BookList = from b in disc.Club.Books select b.Book;
-			return View(disc);
+			var request = await discussionService.TryGetDiscussion(id, userid);
+			if (request.successful)
+				ViewBag.BookList = from b in request.requestedModel.Club.Books select b.Book;
+			return View(request.requestedModel);
 		}
 
 		[Authorize]
@@ -81,8 +81,8 @@ namespace BookClub.Controllers
 		public async Task<IActionResult> ManageBooks(int id)
 		{
 			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			var disc = await discussionService.TryGetDiscussion(id, userid);
-			return View(disc);
+			var request = await discussionService.TryGetDiscussion(id, userid);
+			return View(request.requestedModel);
 		}
 
 		[Authorize]
@@ -101,11 +101,12 @@ namespace BookClub.Controllers
 		public async Task<IActionResult> ViewDiscussion(int id)
 		{
 			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			var disc = await discussionService.TryGetDiscussion(id, userid);
-			if (disc != null) {
-				ViewBag.UserCanEdit = (await clubService.CanUserManageClub(disc.Club.ID.Value, userid))
+			var request = await discussionService.TryGetDiscussion(id, userid);
+			if (request.successful)
+			{
+				ViewBag.UserCanEdit = (await clubService.CanUserManageClub(request.requestedModel.Club.ID.Value, userid))
 					.successful;
-				return View(disc);
+				return View(request.requestedModel);
 			}
 			else
 				;//TODO ERR PAGE
@@ -113,23 +114,23 @@ namespace BookClub.Controllers
 		}
 
 		[Authorize]
-		public async Task<IActionResult> Edit(int id) 
+		public async Task<IActionResult> Edit(int id)
 		{
 			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			var disc = await discussionService.TryGetDiscussion(id, userid);
-			if (disc != null)
+			var request = await discussionService.TryGetDiscussion(id, userid);
+			if (request.successful)
 			{
-				ViewBag.UserCanEdit = await clubService.CanUserManageClub(disc.Club.ID.Value, userid);
-				return View(disc);
+				ViewBag.UserCanEdit = await clubService.CanUserManageClub(request.requestedModel.Club.ID.Value, userid);
+				return View(request.requestedModel);
 			}
 			else
 				return RedirectToAction("ViewDiscussion", new { id });
 		}
-		
+
 		[Authorize]
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Edit([FromForm]ClubDiscussion discussion)
+		public async Task<IActionResult> Edit([FromForm] ClubDiscussion discussion)
 		{
 			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
 			var removed = TempData["SelectedBookList"] as int[];
@@ -137,6 +138,36 @@ namespace BookClub.Controllers
 			if (await discussionService.TryUpdateDiscussion(discussion, ModelState, removed, userid))
 				return RedirectToAction("ViewDiscussion", new { id = discussion.ID });
 			return View();
+		}
+
+		[Authorize]
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> EditAndAddBooks([FromForm] ClubDiscussion discussion)
+		{
+			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			var removed = TempData["SelectedBookList"] as int[];
+			TempData.Remove("SelectedBookList");
+			if (await discussionService.TryUpdateDiscussion(discussion, ModelState, removed, userid))
+				return RedirectToAction("AddBooksToExisting", new { id = discussion.ID });
+			return RedirectToAction("Edit", new { discussion });
+		}
+
+		[Authorize]
+		public async Task<IActionResult> AddBooksToExisting(int id)
+		{
+			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			var request = await discussionService.TryGetDiscussion(id, userid);
+			if (request.successful)
+			{
+				var disc = request.requestedModel;
+				ViewBag.BookList = from bk in disc.Club.Books
+								   where !disc.Books.Any(x=>x.Book.ID == bk.Book.ID)
+								   select bk.Book;
+				return View("AddBooks", request.requestedModel);
+			}
+			else
+				return RedirectToAction("ViewDiscussion", new { id });
 		}
 	}
 }

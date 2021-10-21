@@ -31,8 +31,7 @@ namespace Service
 		public async Task<bool> TryAddBooks(IEnumerable<int> bookIDs, int discId, string userId)
 		{
 			var disc = await discussionRepos.Get(discId);
-			var request = await accessService.CanUserManageClub(disc.Club.ID, userId);
-			if (!request.successful)
+			if (!accessService.CanUserManageClub(disc.Club, userId))
 				return false;
 			foreach (var bookId in bookIDs)
 				disc.Books.Add(new DAL.DTO.ClubDiscussionBook()
@@ -50,9 +49,8 @@ namespace Service
 			//Maybe replace with discussionRepos? TODO
 			if (!modelState.IsValid)
 				return new ModelActionRequestResult<ClubDiscussion>(false);
-			DAL.DTO.Club club;
-			club = await clubRepos.Get(clubId);
-			if (club == null)
+			DAL.DTO.Club club = await clubRepos.Get(clubId);
+			if (club == null || !accessService.CanUserManageClub(club, userId))
 				return new ModelActionRequestResult<ClubDiscussion>(false);
 			ReaderUser user = await userRepos.Get(userId);
 			discussion.Creator = user;
@@ -63,12 +61,12 @@ namespace Service
 			return new ModelActionRequestResult<ClubDiscussion>(true, mapper.Map<ClubDiscussion>(dto));
 		}
 
-		public async Task<ClubDiscussion> TryGetDiscussion(int discId, string userId)
+		public async Task<ModelActionRequestResult<ClubDiscussion>> TryGetDiscussion(int discId, string userId)
 		{
 			var dto = await discussionRepos.Get(discId);
-			if (dto.Club.IsPublic || (userId!=null && dto.Club.Members.Any(x => x.UserID == userId)))
-				return mapper.Map<ClubDiscussion>(dto);
-			return null;
+			if (accessService.CanUserViewClub(dto.Club, userId))
+				return new ModelActionRequestResult<ClubDiscussion>(true, mapper.Map<ClubDiscussion>(dto));
+			return new ModelActionRequestResult<ClubDiscussion>(false);
 		}
 
 		public async Task<bool> TryRefreshBooksPriorities(IEnumerable<ClubDiscussionBook> discussionBooks, 

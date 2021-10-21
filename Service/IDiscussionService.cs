@@ -12,7 +12,7 @@ namespace Service
 	{
 		Task<ModelActionRequestResult<ClubDiscussion>> TryAddDiscussion
 			(ClubDiscussion discussion, ModelStateDictionary modelState, int clubId, string userId);
-		Task<ClubDiscussion> TryGetDiscussion(int discId, string userId);
+		Task<ModelActionRequestResult<ClubDiscussion>> TryGetDiscussion(int discId, string userId);
 		Task<bool> TryAddBooks(IEnumerable<int> bookIDs, int discId, string userId);
 		Task<bool> TryRefreshBooksPriorities(IEnumerable<ClubDiscussionBook> discussionBooks, int discId, string userId);
 		Task<bool> TryUpdateDiscussion(ClubDiscussion discussion, ModelStateDictionary modelState, 
