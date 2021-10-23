@@ -169,6 +169,27 @@ input[type=text].line-field {
         z-index: 1;
     }
 
+.v-o1 {
+    width: calc((0.5vh + 1vw)*0.7) !important;
+    height: calc((0.5vh + 1vw)*0.7) !important;
+}
+.v-o2 {
+    width: calc((1vh + 2vw)*0.7) !important;
+    height: calc((1vh + 2vw)*0.7) !important;
+}
+.v-o3 {
+    width: calc((1.5vh + 3vw)*0.7) !important;
+    height: calc((1.5vh + 3vw)*0.7) !important;
+}
+.v-o5 {
+    width: calc((2.5vh + 5vw)*0.7) !important;
+    height: calc((2.5vh + 5vw)*0.7) !important;
+}
+.v-o10 {
+    width: calc((5vh + 10vw)*0.7) !important;
+    height: calc((5vh + 10vw)*0.7) !important;
+}
+
 .v1 {
     font-size: calc((0.5vh + 1vw)*0.7) !important;
 }
@@ -192,6 +213,32 @@ input[type=text].line-field {
 }
 
 @media (max-width: 768px) {
+
+    .v-o1 {
+        width: calc(0.5vh + 1vw) !important;
+        height: calc(0.5vh + 1vw) !important;
+    }
+
+    .v-o2 {
+        width: calc(1vh + 2vw) !important;
+        height: calc(1vh + 2vw) !important;
+    }
+
+    .v-o3 {
+        width: calc(1.5vh + 3vw) !important;
+        height: calc(1.5vh + 3vw) !important;
+    }
+
+    .v-o5 {
+        width: calc(2.5vh + 5vw) !important;
+        height: calc(2.5vh + 5vw) !important;
+    }
+
+    .v-o10 {
+        width: calc(5vh + 10vw) !important;
+        height: calc(5vh + 10vw) !important;
+    }
+
     .v1 {
         font-size: calc(0.5vh + 1vw) !important;
     }

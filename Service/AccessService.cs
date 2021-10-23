@@ -15,6 +15,7 @@ namespace Service
 
 		private readonly MemberPermissions minimalToManage = MemberPermissions.Manager;
 		public MemberPermissions MinimalToManage => minimalToManage;
+		public MemberPermissions DefaultPermission => MemberPermissions.Reader;
 
 		public AccessService(IRepository<DAL.DTO.Club, int> clubRepos)
 		{
@@ -59,6 +60,14 @@ namespace Service
 			if (club.IsPublic || club.Members.Any(x => x.UserID == userId))
 				return true;
 			return false;
+		}
+
+		public async Task<ModelActionRequestResult<Club>> CanUserJoinClub(int clubId, string userId)
+		{
+			var club = await clubRepos.Get(clubId);
+			if (club.IsPublic && !club.Members.Any(x => x.UserID == userId))
+				return new ModelActionRequestResult<Club>(true, club);
+			return new ModelActionRequestResult<Club>(false);
 		}
 	}
 }

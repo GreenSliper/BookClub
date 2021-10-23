@@ -102,5 +102,13 @@ namespace Service
 			await clubRepos.Update(dto);
 			return true;
 		}
+
+		public async Task<IEnumerable<Club>> GetPublicClubs()
+		{
+			var clubs = await clubRepos.GetAll();
+			return from c in clubs
+				   where c.IsPublic
+				   select mapper.Map<Club>(c);
+		}
 	}
 }

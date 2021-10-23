@@ -37,9 +37,9 @@
             await Html.RenderPartialAsync("Partial/_DiscussionFormPartial", Model);
             <br>
             <h1 class="display-7 mb-2"><strong>Books</strong></h1>
-            <br>
             <input type="submit" class="btn btn-success display-8" value="Add books" 
                    asp-controller="Discussion" asp-action="EditAndAddBooks">
+            <br>
             <br>
             if (Model.Books != null && Model.Books.Count > 0)
             {

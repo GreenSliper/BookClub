@@ -2,7 +2,55 @@
     Layout = "_ClubsMenuLayout";
 }
 
+@model IEnumerable<DAL.Models.Club>
+
 @section Header
 {
     <h1 class="display-4">Browse Public Clubs</h1>
 }
+
+<br />
+<br />
+<table class="text-center w-100">
+    <tr>
+        <th>
+            <p class="display-7 v2"><strong>Club</strong></p>
+        </th>
+        <th>
+            <p class="display-7 v2"><strong>Description</strong></p>
+        </th>
+        <th>
+            <img src="~/icons/people.png" class="v-o2">
+        </th>
+        <th>
+            <img src="~/icons/books.png" class="v-o2">
+        </th>
+        <th>
+            <img src="~/icons/discussion.png" class="v-o2">
+        </th>
+    </tr>
+    @foreach (var c in Model)
+    {
+        string descr = c.Description;
+        int maxDescrLen = 40;
+        if (descr.Length > maxDescrLen)
+            descr = descr[..(maxDescrLen - 3)] + "...";
+        <tr>
+            <th>
+                <a class="display-7 v2" asp-controller="Clubs" asp-action="ViewClub" asp-route-id="@c.ID">@c.Name</a>
+            </th>
+            <th>
+                <p class="display-7 v2">@descr</p>
+            </th>
+            <th>
+                <p class="display-7 v2">@c.Members.Count</p>
+            </th>
+            <th>
+                <p class="display-7 v2">@c.Books.Count</p>
+            </th>
+            <th>
+                <p class="display-7 v2">@c.Discussions.Count</p>
+            </th>
+        </tr>
+    }
+</table>

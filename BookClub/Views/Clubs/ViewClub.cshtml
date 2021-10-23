@@ -18,9 +18,27 @@
 }
 
 <br />
-<p class="display-8 float-left w-75">@Model.Description</p>
-<img class="float-right w-25 h-25" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0jfB_Q5HzpKJjpgRtrxhfhBWL8wZqXuLylA&usqp=CAU">
-
+<div class="d-flex flex-row">
+    <p class="display-8 flex-grow-1">@Model.Description</p>
+    <div class="d-none d-flex flex-column">
+        <img class="v-o10 mb-3"
+             src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0jfB_Q5HzpKJjpgRtrxhfhBWL8wZqXuLylA&usqp=CAU">
+        @if (ViewBag.IsUserMember)
+        {
+            <button class="btn btn-danger display-8"
+                    onclick="location.href='@Url.Action("Leave", "Clubs", new { id = Model.ID })'">
+                Leave
+            </button>
+        }
+        else
+        {
+            <button class="btn btn-success display-8"
+                    onclick="location.href='@Url.Action("Join", "Clubs", new { id = Model.ID })'">
+                Join
+            </button>
+        }
+    </div>
+</div>
 <p class="w-100" style="display:grid; margin:0;" />
 <br />
 <h1 class="display-5 v3">Active Discussions</h1>
@@ -39,10 +57,10 @@ else
 <br />
 @if (Model.Books != null && Model.Books.Count > 0)
 {
-    await Html.RenderPartialAsync("Partial/_ClubBookTable", Model.Discussions);
+    await Html.RenderPartialAsync("Partial/_ClubBookTable", Model.Books);
 }
 else
 {
     <h1 class="display-5 v2 text-description">Nothing here yet!</h1>
-    <br />
 }
+<br />

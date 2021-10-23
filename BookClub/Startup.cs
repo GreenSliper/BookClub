@@ -61,15 +61,16 @@ namespace BookClub
 			services.AddSingleton(mapper);
 
 			//repository
-			services.AddTransient<IRepository<ReaderUser, string>, UserRepository<ApplicationDbContext>>();
-			services.AddTransient<IRepository<Club, int>, ClubRepository<ApplicationDbContext>>();
-			services.AddTransient<IRepository<Book, int>, BookRepository<ApplicationDbContext>>();
-			services.AddTransient<IRepository<ClubDiscussion, int>, DiscussionRepository<ApplicationDbContext>>();
+			services.AddScoped<IRepository<ReaderUser, string>, UserRepository<ApplicationDbContext>>();
+			services.AddScoped<IRepository<Club, int>, ClubRepository<ApplicationDbContext>>();
+			services.AddScoped<IRepository<Book, int>, BookRepository<ApplicationDbContext>>();
+			services.AddScoped<IRepository<ClubDiscussion, int>, DiscussionRepository<ApplicationDbContext>>();
 			//services
 			services.AddTransient<IAccessService, AccessService>();
 			services.AddTransient<IClubService, ClubService>();
 			services.AddTransient<IDiscussionService, DiscussionService>();
 			services.AddTransient<IBookService, BookService>();
+			services.AddTransient<IClubMemberService, ClubMemberService>();
 
 			services.AddControllersWithViews();
 			services.AddRazorPages();

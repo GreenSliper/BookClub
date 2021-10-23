@@ -15,11 +15,13 @@ namespace BookClub.Controllers
 	public class ClubsController : Controller
 	{
 		private readonly IClubService clubService;
+		private readonly IClubMemberService memberService;
 		private readonly IBookService bookService;
-		public ClubsController(IClubService clubService, IBookService bookService)
+		public ClubsController(IClubService clubService, IBookService bookService, IClubMemberService memberService)
 		{
 			this.clubService = clubService;
 			this.bookService = bookService;
+			this.memberService = memberService;
 		}
 		public IActionResult Index()
 		{
@@ -65,9 +67,10 @@ namespace BookClub.Controllers
 			return View();
 		}
 
-		public IActionResult Browse()
+		public async Task<IActionResult> Browse()
 		{
-			return View();
+			var clubs = await clubService.GetPublicClubs();
+			return View(clubs.OrderByDescending(x=>x.Members.Count));
 		}
 
 		public async Task<IActionResult> ViewClub(int id)
@@ -81,7 +84,10 @@ namespace BookClub.Controllers
 			}
 			var club = await clubService.GetClubView(id, userid);
 			if (club != null)
+			{
+				ViewBag.IsUserMember = userid != null && club.Members.Any(x => x.User.Id == userid);
 				return View(club);
+			}
 			else //TODO to error not found / no access page
 				return RedirectToAction("Index");
 		}
@@ -151,6 +157,26 @@ namespace BookClub.Controllers
 			TempData.Remove("SelectedBookList");
 			await clubService.TryAddBooks(idList, club.ID.Value, userid);
 			return RedirectToAction("ViewClub", new { id = club.ID.Value });
+		}
+
+		[Authorize]
+		public async Task<IActionResult> Join(int id)
+		{
+			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			if (await memberService.JoinClub(id, userid))
+				return RedirectToAction("ViewClub", new { id });
+			//TODO: maybe add some err page
+			return RedirectToAction("ViewClub", new { id });
+		}
+
+		[Authorize]
+		public async Task<IActionResult> Leave(int id)
+		{
+			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			if (await memberService.LeaveClub(id, userid))
+				return RedirectToAction("ViewClub", new { id });
+			//TODO: maybe add some err page
+			return RedirectToAction("ViewClub", new { id });
 		}
 	}
 }
