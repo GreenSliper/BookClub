@@ -1,0 +1,21 @@
+﻿
+@model DAL.Models.ClubInvite
+
+<tr class="align-items-center">
+    <td>
+        <a class="display-8" asp-controller="Clubs" asp-action="ViewInvite" asp-route-id="@Model.ClubID">@Model.Club.Name</a>
+    </td>
+    <td>
+        <h1 class="display-8 mb-1">@Model.Inviter.UserName</h1>
+    </td>
+    <td>
+        @{
+            var timeSp = Model.ExpirationTime.Subtract(DateTime.Now);
+            var timeStr = string.Format("{0} d. {1}:{2}", timeSp.Days, timeSp.Hours, timeSp.Minutes);
+        <h1 class="display-8 mb-1">@timeStr</h1>
+        }
+    </td>
+    <td>
+        <h1 class="display-8 mb-1">@Model.GivenPermissions</h1>
+    </td>
+</tr>

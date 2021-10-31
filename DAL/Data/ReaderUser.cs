@@ -1,6 +1,7 @@
 ﻿using DAL.DTO;
 using Microsoft.AspNetCore.Identity;
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,5 +14,11 @@ namespace DAL.Data
 		public virtual ICollection<ClubMember> Memberships { get; set; }
 		public virtual ICollection<ReadBook> ReadBooks { get; set; }
 		public virtual ICollection<ClubDiscussion> CreatedDiscussions { get; set; }
+		
+		[InverseProperty("Receiver")]
+		public virtual ICollection<ClubInvite> ReceivedInvites { get; set; }
+		
+		[InverseProperty("Inviter")]
+		public virtual ICollection<ClubInvite> SentInvites { get; set; }
 	}
 }

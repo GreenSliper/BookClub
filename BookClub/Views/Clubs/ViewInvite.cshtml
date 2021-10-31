@@ -1,0 +1,32 @@
+﻿@{
+    Layout = "_ClubsMenuLayout";
+}
+
+@model DAL.Models.ClubInvite
+
+@section Header
+{
+    <h1 class="display-4">Invite to @Model.Club.Name</h1>
+}
+
+<br>
+<p class="display-8"><strong>From</strong> @Model.Inviter.UserName</p>
+<p class="display-8"><strong>Expires</strong> @Model.ExpirationTime.ToString("g")</p>
+<p class="display-8"><strong>Proposed role</strong> @Model.GivenPermissions</p>
+<p class="display-8"><strong>Message</strong></p>
+<p class="display-8">@Model.Message</p>
+<br>
+<div class="d-flex flex-row">
+    <div class="text-center flex-grow-1">
+        <button class="btn btn-success display-8"
+                onclick="location.href='@Url.Action("AcceptInvite", "Clubs", new { id = Model.ClubID })'">
+            Accept
+        </button>
+    </div>
+    <div class="text-center flex-grow-1">
+        <button class="btn btn-danger display-8"
+                onclick="location.href='@Url.Action("DeclineInvite", "Clubs", new { id = Model.ClubID })'">
+            Decline
+        </button>
+    </div>
+</div>

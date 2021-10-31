@@ -69,5 +69,10 @@ namespace Service
 				return new ModelActionRequestResult<Club>(true, club);
 			return new ModelActionRequestResult<Club>(false);
 		}
+
+		public bool CanUserGivePermission(ClubMember sender, MemberPermissions givenPermission)
+		{
+			return sender.PermissionLevel > givenPermission || sender.Club.Creator == sender.User;
+		}
 	}
 }

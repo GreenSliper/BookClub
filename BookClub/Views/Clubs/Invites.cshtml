@@ -1,0 +1,40 @@
+﻿@{
+    Layout = "_ClubsMenuLayout";
+}
+
+@section Header
+{
+    <h1 class="display-4">Active invites</h1>
+}
+
+@model IEnumerable<DAL.Models.ClubInvite>
+
+<br>
+
+@if (Model == null || Model.Count() == 0)
+{
+    <p class="display-6 text-muted"><strong>You have no active invites!</strong></p>
+}
+else
+{
+<table class="text-center w-100">
+    <tr>
+        <th>
+            <p class="display-8"><strong>Club</strong></p>
+        </th>
+        <th>
+            <p class="display-8"><strong>From</strong></p>
+        </th>
+        <th>
+            <p class="display-8"><strong>Time left</strong></p>
+        </th>
+        <th>
+            <p class="display-8"><strong>Role</strong></p>
+        </th>
+    </tr>
+    @foreach (var inv in Model)
+    {
+        await Html.RenderPartialAsync("Partial/_ClubInviteTableRow", inv);
+    }
+</table>
+}

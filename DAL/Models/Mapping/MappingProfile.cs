@@ -26,6 +26,9 @@ namespace DAL.Models.Mapping
 
 			CreateMap<ClubDiscussionBook, DTO.ClubDiscussionBook>();
 			CreateMap<DTO.ClubDiscussionBook, ClubDiscussionBook>();
+
+			CreateMap<ClubInvite, DTO.ClubInvite>();
+			CreateMap<DTO.ClubInvite, ClubInvite>();
 		}
 	}
 }

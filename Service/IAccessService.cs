@@ -14,6 +14,7 @@ namespace Service
 		Task<ModelActionRequestResult<Club>> CanUserManageClub(int clubId, string userId);
 		bool CanUserManageClub(Club club, string userId);
 		bool CanUserViewClub(Club club, string userId);
+		bool CanUserGivePermission(ClubMember sender, MemberPermissions givenPermission);
 		MemberPermissions MinimalToManage { get; }
 		MemberPermissions DefaultPermission { get; }
 	}

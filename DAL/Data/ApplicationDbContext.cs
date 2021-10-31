@@ -29,6 +29,8 @@ namespace DAL.Data
 					v => Enum.Parse<MemberPermissions>(v));
 			modelBuilder.Entity<ClubDiscussionBook>()
 				.HasKey(c => new { c.BookID, c.DiscussionID });
+			modelBuilder.Entity<ClubInvite>()
+				.HasKey(c => new { c.ClubID, c.ReceiverID });
 			base.OnModelCreating(modelBuilder);
 		}
 

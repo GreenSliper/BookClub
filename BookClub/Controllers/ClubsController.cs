@@ -23,6 +23,9 @@ namespace BookClub.Controllers
 			this.bookService = bookService;
 			this.memberService = memberService;
 		}
+
+		string UserId { get => User.FindFirstValue(ClaimTypes.NameIdentifier); }
+
 		public IActionResult Index()
 		{
 			return View();
@@ -31,15 +34,13 @@ namespace BookClub.Controllers
 		[Authorize]
 		public async Task<IActionResult> MyClubs()
 		{
-			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			return View(await clubService.GetUserClubs(userid));
+			return View(await clubService.GetUserClubs(UserId));
 		}
 		
 		[Authorize]
 		public async Task<IActionResult> Managed()
 		{
-			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			return View(await clubService.GetUserManagedClubs(userid));
+			return View(await clubService.GetUserManagedClubs(UserId));
 		}
 		
 		[Authorize]
@@ -53,8 +54,7 @@ namespace BookClub.Controllers
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Create([FromForm] Club club)
 		{
-			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			if (await clubService.TryInsertClub(club, ModelState, userid))
+			if (await clubService.TryInsertClub(club, ModelState, UserId))
 			{
 				return RedirectToAction("MyClubs");
 			}
@@ -75,17 +75,15 @@ namespace BookClub.Controllers
 
 		public async Task<IActionResult> ViewClub(int id)
 		{
-			string userid = null;
 			if (User.Identity.IsAuthenticated)
 			{
-				userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-				if ((await clubService.CanUserManageClub(id, userid)).successful)
+				if ((await clubService.CanUserManageClub(id, UserId)).successful)
 					return RedirectToAction("Manage", new { id });
 			}
-			var club = await clubService.GetClubView(id, userid);
+			var club = await clubService.GetClubView(id, UserId);
 			if (club != null)
 			{
-				ViewBag.IsUserMember = userid != null && club.Members.Any(x => x.User.Id == userid);
+				ViewBag.IsUserMember = UserId != null && club.Members.Any(x => x.User.Id == UserId);
 				return View(club);
 			}
 			else //TODO to error not found / no access page
@@ -95,8 +93,7 @@ namespace BookClub.Controllers
 		[Authorize]
 		public async Task<IActionResult> Manage(int id)
 		{
-			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			var request = await clubService.CanUserManageClub(id, userid);
+			var request = await clubService.CanUserManageClub(id, UserId);
 			if (request.successful)
 				return View(request.requestedModel);
 			else
@@ -106,8 +103,7 @@ namespace BookClub.Controllers
 		[Authorize]
 		public async Task<IActionResult> Edit(int id)
 		{
-			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			var request = await clubService.CanUserManageClub(id, userid);
+			var request = await clubService.CanUserManageClub(id, UserId);
 			if (request.successful)
 				return View(request.requestedModel);
 			else
@@ -119,8 +115,7 @@ namespace BookClub.Controllers
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Edit([FromForm] Club club)
 		{
-			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			if (club.ID.HasValue && (await clubService.CanUserManageClub(club.ID.Value, userid)).successful)
+			if (club.ID.HasValue && (await clubService.CanUserManageClub(club.ID.Value, UserId)).successful)
 			{
 				if (await clubService.TryUpdateClub(club, ModelState))
 					return RedirectToAction("ViewClub", new { club.ID });
@@ -133,8 +128,7 @@ namespace BookClub.Controllers
 		[Authorize]
 		public async Task<IActionResult> AddBooks(int id)
 		{
-			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			var request = await clubService.CanUserManageClub(id, userid);
+			var request = await clubService.CanUserManageClub(id, UserId);
 			if (request.successful) {
 				var allBooks = await bookService.GetAllBooks();
 				var targetBooks = from b in allBooks
@@ -151,19 +145,17 @@ namespace BookClub.Controllers
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> AddBooksConfirm(Club club)
 		{
-			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
 			//magic is that the list is auto-converted to array
 			var idList = TempData["SelectedBookList"] as int[];
 			TempData.Remove("SelectedBookList");
-			await clubService.TryAddBooks(idList, club.ID.Value, userid);
+			await clubService.TryAddBooks(idList, club.ID.Value, UserId);
 			return RedirectToAction("ViewClub", new { id = club.ID.Value });
 		}
 
 		[Authorize]
 		public async Task<IActionResult> Join(int id)
 		{
-			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			if (await memberService.JoinClub(id, userid))
+			if (await memberService.JoinClub(id, UserId))
 				return RedirectToAction("ViewClub", new { id });
 			//TODO: maybe add some err page
 			return RedirectToAction("ViewClub", new { id });
@@ -172,11 +164,69 @@ namespace BookClub.Controllers
 		[Authorize]
 		public async Task<IActionResult> Leave(int id)
 		{
-			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			if (await memberService.LeaveClub(id, userid))
+			if (await memberService.LeaveClub(id, UserId))
 				return RedirectToAction("ViewClub", new { id });
 			//TODO: maybe add some err page
 			return RedirectToAction("ViewClub", new { id });
+		}
+
+		[Authorize]
+		public async Task<IActionResult> SendInvite(int id)
+		{
+			var request = await clubService.CanUserManageClub(id, UserId);
+			if (request.successful)
+			{
+				return View(new ClubInvite() 
+				{ ClubID = request.requestedModel.ID.Value, 
+					Club = request.requestedModel });
+			}
+			return RedirectToAction("ViewClub", new { id });
+		}
+
+		[Authorize]
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> SendInvite([FromForm] ClubInvite invite)
+		{
+			if (await memberService.TrySendInvite(invite, ModelState, UserId))
+			{
+				//TODO add success page
+				return RedirectToAction("ViewClub", new { id = invite.ClubID });
+			}
+			invite.Club = await clubService.GetClubView(invite.ClubID, UserId);
+			return View(invite);
+		}
+
+		[Authorize]
+		public async Task<IActionResult> Invites()
+		{
+			var invites = await memberService.GetUserReceivedInvites(UserId);
+			return View(invites);
+		}
+
+		[Authorize]
+		public async Task<IActionResult> ViewInvite(int id)
+		{
+			var invite = (await memberService.GetUserReceivedInvites(UserId)).FirstOrDefault(x=>x.ClubID==id);
+			if (invite == null) //TODO error page
+				return RedirectToAction("Invites");
+			return View(invite);
+		}
+
+		[Authorize]
+		public async Task<IActionResult> AcceptInvite(int id)
+		{
+			if (await memberService.TryAcceptInvite(id, UserId)) //TODO error page
+				return RedirectToAction("ViewClub", new { id });
+			return RedirectToAction("Invites");
+		}
+
+		[Authorize]
+		public async Task<IActionResult> DeclineInvite(int id)
+		{
+			if (await memberService.TryDeclineInvite(id, UserId)) //TODO error page
+				;
+			return RedirectToAction("Invites");
 		}
 	}
 }

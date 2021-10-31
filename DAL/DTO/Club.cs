@@ -14,6 +14,7 @@ namespace DAL.DTO
 		public bool IsPublic { get; set; }
 		public virtual ReaderUser Creator { get; set; }
 		public virtual ICollection<ClubMember> Members { get; set; }
+		public virtual ICollection<ClubInvite> Invites { get; set; }
 		public virtual ICollection<ClubBook> Books { get; set; }
 		public virtual ICollection<ClubDiscussion> Discussions { get; set; }
 	}

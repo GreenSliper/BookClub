@@ -1,0 +1,25 @@
+﻿@{
+    Layout = "_ClubsMenuLayout";
+}
+
+@model DAL.Models.ClubInvite
+
+@section Header
+{
+    <h1 class="display-5">Invite to @Model.Club.Name</h1>
+}
+
+<br>
+<form method="post" asp-controller="Clubs" asp-action="SendInvite" asp-validation-summary="All">
+    <div class="club-box">
+        <div class="display-8" style="color:red;" asp-validation-summary="ModelOnly"></div>
+        @{
+            await Html.RenderPartialAsync("Partial/_InviteFormPartial", Model);
+        }
+
+        <br /><br />
+        <div style="text-align:center">
+            <input type="submit" value="Invite" class="display-6 submit-default">
+        </div>
+    </div>
+</form>
