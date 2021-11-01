@@ -4,8 +4,11 @@ namespace DAL.Models.Mapping
 {
 	public class MappingProfile : Profile
 	{
-		public MappingProfile()
+		public MappingProfile(IImageMapper imageMapper)
 		{
+			CreateMap<DTO.DBImage, Image>().ConvertUsing(x => imageMapper.ToImage(x));
+			CreateMap<Image, DTO.DBImage>().ConvertUsing(x => imageMapper.ToDBImage(x));
+
 			CreateMap<Club, DTO.Club>();
 			CreateMap<DTO.Club, Club>();
 

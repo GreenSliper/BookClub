@@ -9,8 +9,8 @@ namespace DAL.Models.Validation
 {
 	public class ExpirableDateAttribute : ValidationAttribute
 	{
-		private TimeSpan maxExpirationTime;
-		private TimeSpan? minExpirationTime;
+		private readonly TimeSpan maxExpirationTime;
+		private readonly TimeSpan? minExpirationTime;
 		public ExpirableDateAttribute(string maxExpirationTimeSpan, string minExpirationTimeSpan = null)
 		{
 			if (!TimeSpan.TryParse(maxExpirationTimeSpan, out maxExpirationTime))
@@ -26,8 +26,7 @@ namespace DAL.Models.Validation
 
 		protected override ValidationResult IsValid(object value, ValidationContext validationContext)
 		{
-			IModelExpirable model = validationContext.ObjectInstance as IModelExpirable;
-			if (model == null)
+			if (validationContext.ObjectInstance is not IModelExpirable model)
 			{
 				throw new ValidationException("Model using ExpirableDateAttribute should implement IModelExpirable interface");
 			}

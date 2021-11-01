@@ -6,9 +6,9 @@
 
 @section Header{
     <div class="d-flex justify-content-center">
-        <span class="@ViewBag.nameClass col-sm">@Model.Name</span>
+        <span class="@ViewBag.nameClass col-sm mb-2">@Model.Name</span>
         <button class="btn btn-outline-primary display-6 d-inline-block align-middle position-absolute"
-                style="height: auto; right: 1.5rem; margin-top: .8rem"
+                style="right: 1.5rem;"
                 onclick="location.href='@Url.Action("Edit", "Clubs", new { id = Model.ID })'">
             Edit
         </button>
@@ -18,8 +18,12 @@
 @section IconBottom
 {
     <button class="btn btn-outline-success display-8"
-            onclick="location.href='@Url.Action("SendInvite", "Clubs", new { id = Model.ID })'">
+            onclick="location.href='@Url.Action("SendInvite", "Members", new { id = Model.ID })'">
         Send invite
+    </button>
+    <button class="btn btn-outline-success display-8"
+            onclick="location.href='@Url.Action("Index", "Members", new { id = Model.ID })'">
+        Members
     </button>
 }
 

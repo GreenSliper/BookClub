@@ -79,7 +79,10 @@ namespace Service
 			{
 				var old = await clubRepos.Get(club.ID.Value);
 				var updated = mapper.Map<DAL.DTO.Club>(club);
+				if (updated.AvatarImage == null && old.AvatarImage != null)
+					updated.AvatarImage = old.AvatarImage;
 				await clubRepos.Update(old, updated);
+				return true;
 			}
 			return false;
 		}

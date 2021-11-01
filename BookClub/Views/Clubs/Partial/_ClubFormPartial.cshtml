@@ -20,3 +20,12 @@
 <strong><label class="display-8" asp-for="IsPublic"></label></strong>
 <br />
 <input style="width:1.6rem; height:1.6rem;" asp-for="IsPublic">
+
+<br />
+<br />
+<strong><label class="display-8" asp-for="AvatarImage"></label></strong>
+<br />
+<input class="display-8" type="file" asp-for="AvatarImage.File" />
+<br>
+<span class="display-8" style="color:red;" asp-validation-for="AvatarImage.File"></span>
+<span class="display-8" style="color:red;" asp-validation-for="AvatarImage"></span>

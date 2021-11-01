@@ -168,6 +168,15 @@ input[type=text].line-field {
         top: 0;
         z-index: 1;
     }
+.rem-1 {
+    width:1rem;
+    height:1rem;
+}
+
+.rem-2 {
+    width: 2rem;
+    height: 2rem;
+}
 
 .v-o1 {
     width: calc((0.5vh + 1vw)*0.7) !important;
@@ -190,6 +199,11 @@ input[type=text].line-field {
     height: calc((5vh + 10vw)*0.7) !important;
 }
 
+.v-o11 {
+    width: calc((7.5vh + 15vw)*0.7) !important;
+    height: calc((7.5vh + 15vw)*0.7) !important;
+}
+
 .v1 {
     font-size: calc((0.5vh + 1vw)*0.7) !important;
 }
@@ -208,7 +222,7 @@ input[type=text].line-field {
 
 @media (min-width:576px) {
     .body-margin {
-        margin-left: 145px;
+        margin-left: 175px;
     }
 }
 
@@ -237,6 +251,11 @@ input[type=text].line-field {
     .v-o10 {
         width: calc(5vh + 10vw) !important;
         height: calc(5vh + 10vw) !important;
+    }
+
+    .v-o11 {
+        width: calc(7.5vh + 15vw) !important;
+        height: calc(7.5vh + 15vw) !important;
     }
 
     .v1 {

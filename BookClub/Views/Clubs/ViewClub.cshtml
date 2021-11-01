@@ -9,14 +9,14 @@
     @if (ViewBag.IsUserMember)
     {
         <button class="btn btn-danger display-8"
-                onclick="location.href='@Url.Action("Leave", "Clubs", new { id = Model.ID })'">
+                onclick="location.href='@Url.Action("Leave", "Members", new { id = Model.ID })'">
             Leave
         </button>
     }
     else
     {
         <button class="btn btn-success display-8"
-                onclick="location.href='@Url.Action("Join", "Clubs", new { id = Model.ID })'">
+                onclick="location.href='@Url.Action("Join", "Members", new { id = Model.ID })'">
             Join
         </button>
     }

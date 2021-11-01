@@ -53,12 +53,11 @@ namespace BookClub
 			});*/
 
 			//auto-mapping
-			var mapperConfig = new MapperConfiguration(mc =>
+			services.AddSingleton<IImageMapper, ImageMapper>();
+			services.AddSingleton(provider => new MapperConfiguration(mc =>
 			{
-				mc.AddProfile(new MappingProfile());
-			});
-			IMapper mapper = mapperConfig.CreateMapper();
-			services.AddSingleton(mapper);
+				mc.AddProfile(new MappingProfile(provider.GetService<IImageMapper>()));
+			}).CreateMapper());
 
 			//repository
 			services.AddScoped<IRepository<ReaderUser, string>, UserRepository<ApplicationDbContext>>();

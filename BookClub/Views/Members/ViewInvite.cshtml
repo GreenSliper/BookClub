@@ -19,13 +19,13 @@
 <div class="d-flex flex-row">
     <div class="text-center flex-grow-1">
         <button class="btn btn-success display-8"
-                onclick="location.href='@Url.Action("AcceptInvite", "Clubs", new { id = Model.ClubID })'">
+                onclick="location.href='@Url.Action("AcceptInvite", "Members", new { id = Model.ClubID })'">
             Accept
         </button>
     </div>
     <div class="text-center flex-grow-1">
         <button class="btn btn-danger display-8"
-                onclick="location.href='@Url.Action("DeclineInvite", "Clubs", new { id = Model.ClubID })'">
+                onclick="location.href='@Url.Action("DeclineInvite", "Members", new { id = Model.ClubID })'">
             Decline
         </button>
     </div>

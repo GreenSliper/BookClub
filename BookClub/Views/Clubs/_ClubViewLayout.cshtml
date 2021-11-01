@@ -5,7 +5,7 @@
 @model DAL.Models.Club
 
 @{
-    (string className, int maxLen)[] classNameLen = { ("display-4", 30), ("display-5", 50), ("display-7", 70) };
+    (string className, int maxLen)[] classNameLen = { ("display-5", 30), ("display-6", 50), ("display-7", 70) };
     int currentClassNameLenInd = 0;
     while (Model.Name.Length > classNameLen[currentClassNameLenInd].maxLen
         && currentClassNameLenInd < classNameLen.Length - 1)
@@ -16,36 +16,42 @@
 @section Header{
     @if (IsSectionDefined("Header"))
         @RenderSection("Header", required: false)
-    else 
-    { 
-        <h1 class="@ViewBag.nameClass">@Model.Name</h1>
-    }
+        else
+        {
+            <h1 class="@ViewBag.nameClass v5 mb-2">@Model.Name</h1>
+        }
 }
 
 <br />
-<div class="d-flex flex-row">
+<div class="d-flex mb-3">
     <p class="display-8 flex-grow-1">@Model.Description</p>
-    <div class="d-none d-flex flex-column">
-        <img class="v-o10 mb-3"
-             src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0jfB_Q5HzpKJjpgRtrxhfhBWL8wZqXuLylA&usqp=CAU">
+    <div class="d-flex flex-column">
+        @{
+            if (Model.AvatarImage != null)
+            {
+                <img class="mb-3 v-o11" src="@Model.AvatarImage.URL">
+            }
+            else
+            {
+                <img class="mb-3 v-o11" src="~/icons/club_no_avatar.png">
+            }
+        }
         @RenderSection("IconBottom", required: false)
     </div>
 </div>
-<p class="w-100" style="display:grid; margin:0;" />
-<br />
+
 <h1 class="display-5 v3">Active Discussions</h1>
 
 @RenderSection("DisussionsAdditional", required: false)
 
 <br />
-@if (Model.Discussions != null && Model.Discussions.Count > 0)
+@if (Model.ActiveDiscussions != null && Model.ActiveDiscussions.Count > 0)
 {
-    await Html.RenderPartialAsync("Partial/_DiscussionTable", Model.Discussions);
+    await Html.RenderPartialAsync("Partial/_DiscussionTable", Model.ActiveDiscussions);
 }
 else
 {
     <h1 class="display-5 v2 text-description">Nothing here yet!</h1>
-    <br />
 }
 <br />
 <h1 class="display-5 v3">Club Books</h1>
@@ -56,6 +62,19 @@ else
 @if (Model.Books != null && Model.Books.Count > 0)
 {
     await Html.RenderPartialAsync("Partial/_ClubBookTable", Model.Books);
+}
+else
+{
+    <h1 class="display-5 v2 text-description">Nothing here yet!</h1>
+}
+<br />
+
+<br />
+<h1 class="display-5 v3">Archived Discussions</h1>
+<br />
+@if (Model.ArchivedDiscussions != null && Model.ArchivedDiscussions.Count > 0)
+{
+    await Html.RenderPartialAsync("Partial/_DiscussionTable", Model.ArchivedDiscussions);
 }
 else
 {

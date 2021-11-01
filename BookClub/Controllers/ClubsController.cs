@@ -3,6 +3,7 @@ using DAL.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Web.Helpers;
 using Service;
 using System;
 using System.Collections.Generic;
@@ -120,7 +121,7 @@ namespace BookClub.Controllers
 				if (await clubService.TryUpdateClub(club, ModelState))
 					return RedirectToAction("ViewClub", new { club.ID });
 				else
-					; //TODO err page
+					return View(club);
 			}
 			return RedirectToAction("ViewClub", new { club.ID });
 		}
@@ -150,83 +151,6 @@ namespace BookClub.Controllers
 			TempData.Remove("SelectedBookList");
 			await clubService.TryAddBooks(idList, club.ID.Value, UserId);
 			return RedirectToAction("ViewClub", new { id = club.ID.Value });
-		}
-
-		[Authorize]
-		public async Task<IActionResult> Join(int id)
-		{
-			if (await memberService.JoinClub(id, UserId))
-				return RedirectToAction("ViewClub", new { id });
-			//TODO: maybe add some err page
-			return RedirectToAction("ViewClub", new { id });
-		}
-
-		[Authorize]
-		public async Task<IActionResult> Leave(int id)
-		{
-			if (await memberService.LeaveClub(id, UserId))
-				return RedirectToAction("ViewClub", new { id });
-			//TODO: maybe add some err page
-			return RedirectToAction("ViewClub", new { id });
-		}
-
-		[Authorize]
-		public async Task<IActionResult> SendInvite(int id)
-		{
-			var request = await clubService.CanUserManageClub(id, UserId);
-			if (request.successful)
-			{
-				return View(new ClubInvite() 
-				{ ClubID = request.requestedModel.ID.Value, 
-					Club = request.requestedModel });
-			}
-			return RedirectToAction("ViewClub", new { id });
-		}
-
-		[Authorize]
-		[HttpPost]
-		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> SendInvite([FromForm] ClubInvite invite)
-		{
-			if (await memberService.TrySendInvite(invite, ModelState, UserId))
-			{
-				//TODO add success page
-				return RedirectToAction("ViewClub", new { id = invite.ClubID });
-			}
-			invite.Club = await clubService.GetClubView(invite.ClubID, UserId);
-			return View(invite);
-		}
-
-		[Authorize]
-		public async Task<IActionResult> Invites()
-		{
-			var invites = await memberService.GetUserReceivedInvites(UserId);
-			return View(invites);
-		}
-
-		[Authorize]
-		public async Task<IActionResult> ViewInvite(int id)
-		{
-			var invite = (await memberService.GetUserReceivedInvites(UserId)).FirstOrDefault(x=>x.ClubID==id);
-			if (invite == null) //TODO error page
-				return RedirectToAction("Invites");
-			return View(invite);
-		}
-
-		[Authorize]
-		public async Task<IActionResult> AcceptInvite(int id)
-		{
-			if (await memberService.TryAcceptInvite(id, UserId)) //TODO error page
-				return RedirectToAction("ViewClub", new { id });
-			return RedirectToAction("Invites");
-		}
-
-		[Authorize]
-		public async Task<IActionResult> DeclineInvite(int id)
-		{
-			if (await memberService.TryDeclineInvite(id, UserId)) //TODO error page
-				;
-			return RedirectToAction("Invites");
 		}
 	}
 }
