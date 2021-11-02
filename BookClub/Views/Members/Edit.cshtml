@@ -1,0 +1,33 @@
+﻿@model DAL.Models.ClubMember
+
+@{
+    Layout = "_ClubsMenuLayout";
+}
+
+@section Header
+{
+    <h1 class="display-5">Edit user</h1>
+}
+
+<br>
+<form method="post" asp-controller="Members" asp-action="Edit" asp-validation-summary="All">
+    <div class="club-box">
+        <h1 class="display-7 text-center">@Model.User.UserName</h1>
+        @{
+            await Html.RenderPartialAsync("Partial/_MemberFormPartial", Model);
+        }
+
+        <br /><br />
+        <div style="text-align:center">
+            <input type="submit" value="Confirm changes" class="display-6 submit-default">
+        </div>
+    </div>
+</form>
+
+<br>
+<div class="text-center">
+    <button type="button" class="btn btn-danger display-6 pt-0"
+            onclick="location.href='@Url.Action("Index", "Members", new { id = Model.User.Id, clubId = Model.Club.ID })'">
+        Ban
+    </button>
+</div>

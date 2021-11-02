@@ -1,0 +1,18 @@
+﻿
+@model DAL.Models.ClubMember
+
+<tr>
+    <td>
+        <a class="display-8" asp-controller="Members" asp-action="Edit" 
+           asp-route-id="@Model.User.Id" asp-route-clubId="@ViewBag.ClubId">
+        @Model.User.UserName</a>
+    </td>
+    <td>
+        @{ 
+            string textColor = "inherit";
+            if (Model.PermissionLevel > DAL.DTO.MemberPermissions.Reader)
+                textColor = "#00a60e";
+        }
+        <p class="display-8 mb-0" style="color:@textColor">@Model.PermissionLevel</p>
+    </td>
+</tr>

@@ -32,7 +32,7 @@ namespace DAL.Models
 		public ICollection<ClubMember> Members { get; set; }
 		public ICollection<ClubBook> Books { get; set; }
 		public ICollection<ClubDiscussion> Discussions { get; set; }
-		public ICollection<ClubDiscussion> ActiveDiscussions { get => Discussions.Where(x => x.Time >= DateTime.Now).ToArray(); }
-		public ICollection<ClubDiscussion> ArchivedDiscussions { get => Discussions.Where(x => x.Time < DateTime.Now).ToArray(); }
+		public ICollection<ClubDiscussion> ActiveDiscussions { get => Discussions?.Where(x => x.Time >= DateTime.Now).ToArray(); }
+		public ICollection<ClubDiscussion> ArchivedDiscussions { get => Discussions?.Where(x => x.Time < DateTime.Now).ToArray(); }
 	}
 }

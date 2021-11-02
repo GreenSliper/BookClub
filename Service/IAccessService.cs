@@ -9,10 +9,11 @@ namespace Service
 {
 	public interface IAccessService
 	{
-		Task<ModelActionRequestResult<Club>> CanUserJoinClub(int clubId, string userId);
-		Task<ModelActionRequestResult<Club>> CanUserViewClub(int clubId, string userId);
-		Task<ModelActionRequestResult<Club>> CanUserManageClub(int clubId, string userId);
+		bool CanUserManageClubMembers(Club club, string userId);
+		bool CanUserJoinPublicClub(Club club, string userId);
 		bool CanUserManageClub(Club club, string userId);
+		bool CanUserManageClub(ClubMember member);
+		bool CanUserModifyMember(ClubMember manager, ClubMember member);
 		bool CanUserViewClub(Club club, string userId);
 		bool CanUserGivePermission(ClubMember sender, MemberPermissions givenPermission);
 		MemberPermissions MinimalToManage { get; }

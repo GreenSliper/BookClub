@@ -1,2 +1,27 @@
-﻿@{
+﻿@model DAL.Models.Club
+
+@{
+    Layout = "_ClubsMenuLayout";
+    ViewBag.ClubId = Model.ID;
 }
+
+@section Header
+{
+    <h1 class="display-5">@Model.Name members</h1>
+}
+
+<br>
+<table class="text-center w-100">
+    <tr>
+        <th>
+            <p class="display-7 v2"><strong>User</strong></p>
+        </th>
+        <th>
+            <p class="display-7 v2"><strong>Role</strong></p>
+        </th>
+    </tr>
+    @{
+        foreach (var d in Model.Members)
+            await Html.RenderPartialAsync("Partial/_MemberTableRow", d);
+    }
+</table>

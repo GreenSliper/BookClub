@@ -16,26 +16,29 @@ namespace Service
 		private readonly IRepository<ReaderUser, string> userRepos;
 		private readonly IRepository<DAL.DTO.Club, int> clubRepos;
 		IExpirableRepos<DAL.DTO.ClubInvite, (int clubId, string receiverId)> inviteRepos;
+		IRepository<DAL.DTO.ClubMember, (int clubId, string userId)> memberRepos;
 		private readonly IMapper mapper;
 		private readonly IAccessService accessService;
 		public ClubMemberService(IRepository<ReaderUser, string> userRepos,
 			IRepository<DAL.DTO.Club, int> clubRepos,
 			IExpirableRepos<DAL.DTO.ClubInvite, (int clubId, string receiverId)> inviteRepos,
+			IRepository<DAL.DTO.ClubMember, (int clubId, string userId)> memberRepos,
 			IAccessService accessService, IMapper mapper)
 		{
 			this.userRepos = userRepos;
 			this.clubRepos = clubRepos;
 			this.inviteRepos = inviteRepos;
+			this.memberRepos = memberRepos;
 			this.accessService = accessService;
 			this.mapper = mapper;
 		}
 
 		public async Task<bool> JoinClub(int clubId, string userId)
 		{
-			var request = await accessService.CanUserJoinClub(clubId, userId);
-			if (request.successful)
+			var club = await clubRepos.Get(clubId);
+			if (accessService.CanUserJoinPublicClub(club, userId))
 			{
-				request.requestedModel.Members.Add(new DAL.DTO.ClubMember()
+				club.Members.Add(new DAL.DTO.ClubMember()
 				{
 					ClubID = clubId,
 					UserID = userId,
@@ -126,15 +129,15 @@ namespace Service
 		{
 			if (!modelState.IsValid)
 				return false;
-			var request = await accessService.CanUserManageClub(invite.ClubID, inviterID);
-			if (request.successful)
+			var club = await clubRepos.Get(invite.ClubID);
+			if (accessService.CanUserManageClub(club, inviterID))
 			{
 				var receiver = (await userRepos.GetAll()).FirstOrDefault
 					(x => x.NormalizedUserName == invite.ReceiverName.ToUpper());
 				if (!await CanUserReceiveInvite(receiver, invite, modelState))
 					return false;
 				
-				var sender = request.requestedModel.Members.FirstOrDefault(x => x.UserID == inviterID);
+				var sender = club.Members.FirstOrDefault(x => x.UserID == inviterID);
 				if (sender != null && 
 					accessService.CanUserGivePermission(sender, invite.GivenPermissions))
 				{
@@ -147,6 +150,45 @@ namespace Service
 				else
 					modelState.AddModelError("", "You are not able to give this permission level!");
 			}
+			return false;
+		}
+
+		public async Task<ModelActionRequestResult<ClubMember>> ManageMember(string managerId, string targetUserId, int clubId)
+		{
+			var club = await clubRepos.Get(clubId);
+			if (accessService.CanUserManageClubMembers(club, managerId))
+			{
+				var target = club.Members.FirstOrDefault(x => x.UserID == targetUserId);
+				if(target!=null)
+					return new ModelActionRequestResult<ClubMember>(true, mapper.Map<ClubMember>(target));
+			}
+			return new ModelActionRequestResult<ClubMember>(false);
+		}
+
+		public async Task<bool> TryUpdateMember(ClubMember member, ModelStateDictionary modelState, string managerId)
+		{
+			if (!modelState.IsValid)
+				return false;
+			var club = await clubRepos.Get(member.Club.ID.Value);
+			if (club == null)
+				return false;
+			var manager = club.Members.FirstOrDefault(x => x.UserID == managerId);
+			if (manager == null)
+				return false;
+			var oldMember = club.Members.FirstOrDefault(x => x.UserID == member.User.Id);
+			if (accessService.CanUserModifyMember(manager, oldMember))
+			{
+				if (accessService.CanUserGivePermission(manager, member.PermissionLevel))
+				{
+					var newMember = mapper.Map<DAL.DTO.ClubMember>(member);
+					await memberRepos.Update(oldMember, newMember);
+					return true;
+				}
+				else
+					modelState.AddModelError("", "You cannot give this permission level!");
+			}
+			else
+				modelState.AddModelError("", "You cannot modify this user!");
 			return false;
 		}
 	}

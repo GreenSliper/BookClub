@@ -1,0 +1,11 @@
+﻿@model DAL.Models.ClubMember
+
+@Html.HiddenFor(m => m.Club.ID)
+@Html.HiddenFor(m => m.User.Id)
+
+<br />
+<strong><label class="display-8" asp-for="PermissionLevel"></label></strong>
+<br />
+<select asp-for="PermissionLevel" asp-items="Html.GetEnumSelectList<DAL.DTO.MemberPermissions>()" class="display-8">
+</select>
+<br />

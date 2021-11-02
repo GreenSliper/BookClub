@@ -64,10 +64,11 @@ namespace BookClub
 			services.AddScoped<IRepository<Club, int>, ClubRepository<ApplicationDbContext>>();
 			services.AddScoped<IRepository<Book, int>, BookRepository<ApplicationDbContext>>();
 			services.AddScoped<IRepository<ClubDiscussion, int>, DiscussionRepository<ApplicationDbContext>>();
+			services.AddScoped<IRepository<ClubMember, (int, string)>, MemberRepos<ApplicationDbContext>>();
 			services.AddScoped<IExpirableRepos<ClubInvite, (int clubId, string receiverId)>, 
 				InviteRepository<ApplicationDbContext>>();
 			//services
-			services.AddTransient<IAccessService, AccessService>();
+			services.AddSingleton<IAccessService, AccessService>();
 			services.AddTransient<IClubService, ClubService>();
 			services.AddTransient<IDiscussionService, DiscussionService>();
 			services.AddTransient<IBookService, BookService>();

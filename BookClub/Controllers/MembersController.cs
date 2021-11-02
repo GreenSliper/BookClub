@@ -21,6 +21,7 @@ namespace BookClub.Controllers
 		}
 		string UserId { get => User.FindFirstValue(ClaimTypes.NameIdentifier); }
 
+		[Authorize]
 		public async Task<IActionResult> Index(int id)
 		{
 			var request = await clubService.CanUserManageClub(id, UserId);
@@ -29,6 +30,32 @@ namespace BookClub.Controllers
 				return View(request.requestedModel);
 			}
 			return RedirectToAction("ViewClub", "Clubs", new { id });
+		}
+
+		[Authorize]
+		public async Task<IActionResult> Edit(string id, int clubId)
+		{
+			var request = await memberService.ManageMember(UserId, id, clubId);
+			if (request.successful)
+				return View(request.requestedModel);
+			return RedirectToAction("Index", new { id = clubId } );
+		}
+
+		[Authorize]
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> Edit([FromForm] ClubMember member)
+		{
+			if (await memberService.TryUpdateMember(member, ModelState, UserId))
+				return RedirectToAction("Index", new { id=member.Club.ID });
+			var request = await memberService.ManageMember(UserId, member.User.Id, member.Club.ID.Value);
+			if (request.successful)
+			{
+				//TODO not the best solution ever
+				member.Club = request.requestedModel.Club;
+				member.User = request.requestedModel.User;
+			}
+			return View(member);
 		}
 
 		[Authorize]

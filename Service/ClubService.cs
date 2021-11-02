@@ -38,7 +38,7 @@ namespace Service
 		{
 			//logics: creator/manager of the club is always the member
 			return from m in (await userRepos.Get(userId)).Memberships
-				   where (int)m.PermissionLevel>=(int)accessService.MinimalToManage || m.Club.Creator.Id == userId
+				   where accessService.CanUserManageClub(m)
 				   select mapper.Map<Club>(m.Club);
 		}
 
@@ -61,16 +61,17 @@ namespace Service
 
 		public async Task<Club> GetClubView(int id, string userId)
 		{
-			var request = await accessService.CanUserViewClub(id, userId);
-			if(request.successful)
-				return mapper.Map<Club>(request.requestedModel);
+			var club = await clubRepos.Get(id);
+			if(accessService.CanUserViewClub(club, userId))
+				return mapper.Map<Club>(club);
 			return null;
 		}
 
 		public async Task<ModelActionRequestResult<Club>> CanUserManageClub(int clubId, string userId)
 		{
-			var result = await accessService.CanUserManageClub(clubId, userId);
-			return new ModelActionRequestResult<Club>(result.successful, mapper.Map<Club>(result.requestedModel));
+			var club = await clubRepos.Get(clubId);
+			var result = accessService.CanUserManageClub(club, userId);
+			return new ModelActionRequestResult<Club>(result, mapper.Map<Club>(club));
 		}
 
 		public async Task<bool> TryUpdateClub(Club club, ModelStateDictionary modelState)
@@ -89,20 +90,19 @@ namespace Service
 
 		public async Task<bool> TryAddBooks(IEnumerable<int> bookIds, int clubId, string userId)
 		{
-			var request = await accessService.CanUserManageClub(clubId, userId);
-			if (!request.successful || request.requestedModel == null)
+			var club = await clubRepos.Get(clubId);
+			if (!accessService.CanUserManageClub(club, userId))
 				return false;
 			var user = await userRepos.Get(userId);
-			var dto = request.requestedModel;
 			foreach (var bookId in bookIds)
-				dto.Books.Add(new DAL.DTO.ClubBook() 
+				club.Books.Add(new DAL.DTO.ClubBook() 
 				{ 
 					AddedByUser = user,
-					Club = dto,
+					Club = club,
 					BookID = bookId,
 					AddedTime = DateTime.Now
 				});
-			await clubRepos.Update(dto);
+			await clubRepos.Update(club);
 			return true;
 		}
 
