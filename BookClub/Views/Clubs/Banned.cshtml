@@ -1,0 +1,59 @@
+﻿@{
+    Layout = "_ClubsMenuLayout";
+}
+
+@model DAL.Models.Ban
+@using System.Security.Claims;
+
+@{
+    var Club = Model.Club;
+    (string className, int maxLen)[] classNameLen = { ("display-5", 30), ("display-6", 50), ("display-7", 70) };
+    int currentClassNameLenInd = 0;
+    while (Club.Name.Length > classNameLen[currentClassNameLenInd].maxLen
+        && currentClassNameLenInd < classNameLen.Length - 1)
+        currentClassNameLenInd++;
+    ViewBag.nameClass = classNameLen[currentClassNameLenInd].className;
+}
+
+@section Header{
+    <h1 class="@ViewBag.nameClass v5 mb-2">@Club.Name</h1>
+}
+
+<br />
+<div class="d-flex mb-3">
+    <p class="display-8 flex-grow-1">@Club.Description</p>
+    <div class="d-flex flex-column">
+        @{
+            if (Club.AvatarImage != null)
+            {
+                <img class="mb-3 v-o11" src="@Club.AvatarImage.URL">
+            }
+            else
+            {
+                <img class="mb-3 v-o11" src="~/icons/club_no_avatar.png">
+            }
+        }
+        @{
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (Club.Members.Any(x => x.User.Id == userId))
+            {
+                <button class="btn btn-danger display-8"
+                        onclick="location.href='@Url.Action("Leave", "Members", new { id = Club.ID })'">
+                    Leave
+                </button>
+            }
+        }
+    </div>
+</div>
+@{
+    string banTimeText = "forever.";
+    //not the best solution. Should fix the model
+    if (Model.ExpirationTime <= DateTime.Now.AddYears(1000))
+        banTimeText = $"until {Model.ExpirationTime:g}.";
+}
+
+<h1 class="display-6 text-danger">Ban</h1>
+<h1 class="display-8">Unfortunately, you are banned in this club @banTimeText</h1>
+<br>
+<h1 class="display-7">Message from manager</h1>
+<h1 class="display-8">@Model.Message</h1>

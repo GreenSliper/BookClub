@@ -9,7 +9,7 @@ namespace Repository
 {
 	public interface IExpirableRepos<ModelT, KeyT> : IRepository<ModelT, KeyT> where ModelT : class, IExpirable
 	{
-		Task<IEnumerable<ModelT>> GetNotExpired(IEnumerable<ModelT> invites);
-		Task<ModelT> GetNotExpired(ModelT invite);
+		Task<IEnumerable<ModelT>> GetNotExpired(IEnumerable<ModelT> collection);
+		Task<ModelT> GetNotExpired(ModelT entry);
 	}
 }

@@ -32,6 +32,9 @@ namespace DAL.Models.Mapping
 
 			CreateMap<ClubInvite, DTO.ClubInvite>();
 			CreateMap<DTO.ClubInvite, ClubInvite>();
+
+			CreateMap<Ban, DTO.Ban>();
+			CreateMap<DTO.Ban, Ban>();
 		}
 	}
 }

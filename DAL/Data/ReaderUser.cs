@@ -20,5 +20,9 @@ namespace DAL.Data
 		
 		[InverseProperty("Inviter")]
 		public virtual ICollection<ClubInvite> SentInvites { get; set; }
+		[InverseProperty("BannedUser")]
+		public virtual ICollection<Ban> ReceivedBans { get; set; }
+		[InverseProperty("BannedBy")]
+		public virtual ICollection<Ban> GivenBans { get; set; }
 	}
 }

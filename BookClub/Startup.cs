@@ -1,4 +1,5 @@
 using AutoMapper;
+using BookClub.Controllers.Services;
 using DAL.Data;
 using DAL.DTO;
 using DAL.Models.Mapping;
@@ -65,10 +66,12 @@ namespace BookClub
 			services.AddScoped<IRepository<Book, int>, BookRepository<ApplicationDbContext>>();
 			services.AddScoped<IRepository<ClubDiscussion, int>, DiscussionRepository<ApplicationDbContext>>();
 			services.AddScoped<IRepository<ClubMember, (int, string)>, MemberRepos<ApplicationDbContext>>();
-			services.AddScoped<IExpirableRepos<ClubInvite, (int clubId, string receiverId)>, 
+			services.AddScoped<IExpirableRepos<ClubInvite, (int clubId, string receiverId)>,
 				InviteRepository<ApplicationDbContext>>();
+			services.AddScoped<IExpirableRepos<Ban, (int clubID, string targetUserID)>,
+				BanRepository<ApplicationDbContext>>();
 			//services
-			services.AddSingleton<IAccessService, AccessService>();
+			services.AddScoped<IAccessService, AccessService>();
 			services.AddTransient<IClubService, ClubService>();
 			services.AddTransient<IDiscussionService, DiscussionService>();
 			services.AddTransient<IBookService, BookService>();

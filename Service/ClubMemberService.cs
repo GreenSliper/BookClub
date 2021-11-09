@@ -36,7 +36,7 @@ namespace Service
 		public async Task<bool> JoinClub(int clubId, string userId)
 		{
 			var club = await clubRepos.Get(clubId);
-			if (accessService.CanUserJoinPublicClub(club, userId))
+			if ((await accessService.CanUserJoinPublicClub(club, userId)).Success)
 			{
 				club.Members.Add(new DAL.DTO.ClubMember()
 				{
@@ -130,39 +130,42 @@ namespace Service
 			if (!modelState.IsValid)
 				return false;
 			var club = await clubRepos.Get(invite.ClubID);
-			if (accessService.CanUserManageClub(club, inviterID))
-			{
-				var receiver = (await userRepos.GetAll()).FirstOrDefault
-					(x => x.NormalizedUserName == invite.ReceiverName.ToUpper());
-				if (!await CanUserReceiveInvite(receiver, invite, modelState))
-					return false;
+			var receiver = (await userRepos.GetAll()).FirstOrDefault
+				(x => x.NormalizedUserName == invite.ReceiverName.ToUpper());
+
+			if (!await CanUserReceiveInvite(receiver, invite, modelState))
+				return false;
 				
-				var sender = club.Members.FirstOrDefault(x => x.UserID == inviterID);
-				if (sender != null && 
-					accessService.CanUserGivePermission(sender, invite.GivenPermissions))
-				{
-					var dto = mapper.Map<DAL.DTO.ClubInvite>(invite);
-					dto.ReceiverID = receiver.Id;
-					dto.InviterID = inviterID;
-					await inviteRepos.Insert(dto);
-					return true;
-				}
-				else
-					modelState.AddModelError("", "You are not able to give this permission level!");
+			var sender = club.Members.FirstOrDefault(x => x.UserID == inviterID);
+			if (sender != null && 
+				accessService.CanUserGivePermission(sender, invite.GivenPermissions))
+			{
+				var dto = mapper.Map<DAL.DTO.ClubInvite>(invite);
+				dto.ReceiverID = receiver.Id;
+				dto.InviterID = inviterID;
+				await inviteRepos.Insert(dto);
+				return true;
 			}
+			else
+				modelState.AddModelError("", "You are not able to give this permission level!");
 			return false;
 		}
 
-		public async Task<ModelActionRequestResult<ClubMember>> ManageMember(string managerId, string targetUserId, int clubId)
+		public async Task<ModelAccessResult<ClubMember, Ban, AccessErrors>> ManageMember(string managerId, string targetUserId, int clubId)
 		{
 			var club = await clubRepos.Get(clubId);
-			if (accessService.CanUserManageClubMembers(club, managerId))
+			var manageMemberRequest = await accessService.CanUserManageClubMembers(club, managerId);
+			if (!manageMemberRequest.Success)
+				return manageMemberRequest.Map<ClubMember, Ban>(mapper);
+			if (manageMemberRequest.Success)
 			{
 				var target = club.Members.FirstOrDefault(x => x.UserID == targetUserId);
-				if(target!=null)
-					return new ModelActionRequestResult<ClubMember>(true, mapper.Map<ClubMember>(target));
+				if (target != null)
+					return new ModelAccessResult<ClubMember, Ban, AccessErrors>(mapper.Map<ClubMember>(target));
+				else
+					return new ModelAccessResult<ClubMember, Ban, AccessErrors>(AccessErrors.NotFound);
 			}
-			return new ModelActionRequestResult<ClubMember>(false);
+			return new ModelAccessResult<ClubMember, Ban, AccessErrors>(AccessErrors.NotPermitted);
 		}
 
 		public async Task<bool> TryUpdateMember(ClubMember member, ModelStateDictionary modelState, string managerId)
@@ -176,7 +179,7 @@ namespace Service
 			if (manager == null)
 				return false;
 			var oldMember = club.Members.FirstOrDefault(x => x.UserID == member.User.Id);
-			if (accessService.CanUserModifyMember(manager, oldMember))
+			if ((await accessService.CanUserModifyMember(manager, oldMember)))
 			{
 				if (accessService.CanUserGivePermission(manager, member.PermissionLevel))
 				{
@@ -190,6 +193,24 @@ namespace Service
 			else
 				modelState.AddModelError("", "You cannot modify this user!");
 			return false;
+		}
+
+		public async Task<bool> Ban(Ban ban, ModelStateDictionary modelState, string managerId)
+		{
+			if (!modelState.IsValid)
+				return false;
+			var club = await clubRepos.Get(ban.ClubID);
+			if ((await accessService.CanUserViewClub(club, ban.BannedUserID)).error == AccessErrors.Banned)
+			{
+				modelState.AddModelError("", "User is already banned!");
+				return false;
+			}
+			var dto = mapper.Map<DAL.DTO.Ban>(ban);
+			if (ban.Forever)
+				dto.ExpirationTime = DateTime.MaxValue;
+			dto.BannedByID = managerId;
+			await accessService.AddOrUpdateBan(dto);
+			return true;
 		}
 	}
 }

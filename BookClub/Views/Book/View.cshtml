@@ -1,0 +1,15 @@
+﻿@{
+    Layout = "_Layout";
+}
+
+@model DAL.Models.Book
+
+<h1 class="text-center display-5">@Model.Name</h1>
+<br>
+<strong><label class="display-8" asp-for="Author"></label></strong>
+<h1 class="display-8">@Model.Author</h1>
+<br>
+<strong><label class="display-8" asp-for="Description"></label></strong>
+<h1 class="display-8">@Model.Author</h1>
+<br>
+<a asp-action="MarkRead" asp-controller="Books" class="btn btn-outline-primary">Mark as read</a>

@@ -1,0 +1,40 @@
+﻿@{
+    Layout = "_ClubsMenuLayout";
+}
+
+@section Scripts{
+    <script type="text/javascript">
+    function ToggleBanDuration()
+    {
+        var block = document.getElementById("ExpirationTimeSection");
+        if (block.style.display != "none") {
+            block.style.display = "none";
+        } else {
+            block.style.display = "block";
+        }
+    }
+    </script>
+}
+
+@model DAL.Models.Ban
+
+@section Header
+{
+    <h1 class="display-5">Ban member</h1>
+}
+
+<br>
+<form method="post" asp-controller="Members" asp-action="Ban" asp-validation-summary="All">
+    <div class="club-box">
+        <h1 class="display-7 text-center">@ViewBag.UserName</h1>
+        <div class="display-8" style="color:red;" asp-validation-summary="ModelOnly"></div>
+        @{
+            await Html.RenderPartialAsync("Partial/_BanFormPartial", Model);
+        }
+
+        <br /><br />
+        <div style="text-align:center">
+            <input type="submit" value="Ban" class="display-6 btn btn-danger">
+        </div>
+    </div>
+</form>

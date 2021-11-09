@@ -19,11 +19,10 @@ namespace DAL.Models.Validation
         protected override ValidationResult IsValid(
         object value, ValidationContext validationContext)
         {
-            var file = value as IFormFile;
-            if (file != null)
-                if (file.Length > maxFileSize)
-                    return new ValidationResult(GetErrorMessage());
-            return ValidationResult.Success;
+			if (value is IFormFile file)
+				if (file.Length > maxFileSize)
+					return new ValidationResult(GetErrorMessage());
+			return ValidationResult.Success;
         }
 
         public string GetErrorMessage()

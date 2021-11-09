@@ -18,5 +18,6 @@ namespace DAL.DTO
 		public virtual ICollection<ClubInvite> Invites { get; set; }
 		public virtual ICollection<ClubBook> Books { get; set; }
 		public virtual ICollection<ClubDiscussion> Discussions { get; set; }
+		public virtual ICollection<Ban> BanList { get; set; }
 	}
 }

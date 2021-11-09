@@ -9,12 +9,15 @@ namespace DAL.Models.Validation
 {
 	public class ExpirableDateAttribute : ValidationAttribute
 	{
-		private readonly TimeSpan maxExpirationTime;
+		private readonly TimeSpan? maxExpirationTime;
 		private readonly TimeSpan? minExpirationTime;
-		public ExpirableDateAttribute(string maxExpirationTimeSpan, string minExpirationTimeSpan = null)
+		public ExpirableDateAttribute(string maxExpirationTimeSpan = null, string minExpirationTimeSpan = null)
 		{
-			if (!TimeSpan.TryParse(maxExpirationTimeSpan, out maxExpirationTime))
-				throw new ArgumentException("maxExpirationTimeSpan should be a valid TimeSpan string");
+			if (maxExpirationTimeSpan != null)
+				if (TimeSpan.TryParse(maxExpirationTimeSpan, out TimeSpan tsp))
+					maxExpirationTime = tsp;
+				else
+					throw new ArgumentException("maxExpirationTimeSpan should be a valid TimeSpan string");
 			if (minExpirationTimeSpan != null)
 			{
 				if (TimeSpan.TryParse(minExpirationTimeSpan, out TimeSpan minExp))
@@ -38,9 +41,12 @@ namespace DAL.Models.Validation
 				if (model.ExpirationTime <= minTime)
 					return new ValidationResult($"Expiration time should be at least {minTime:g}");
 			}
-			var maxTime = DateTime.Now.Add(maxExpirationTime);
-			if (model.ExpirationTime > maxTime)
-				return new ValidationResult($"Max expiration time is {maxTime:g}");
+			if (maxExpirationTime != null)
+			{
+				var maxTime = DateTime.Now.Add(maxExpirationTime.Value);
+				if (model.ExpirationTime > maxTime)
+					return new ValidationResult($"Max expiration time is {maxTime:g}");
+			}
 			return ValidationResult.Success;
 		}
 	}

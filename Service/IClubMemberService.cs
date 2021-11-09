@@ -16,7 +16,8 @@ namespace Service
 		Task<bool> TrySendInvite(ClubInvite invite, ModelStateDictionary modelState, string inviterID);
 		Task<bool> TryAcceptInvite(int clubId, string userId);
 		Task<bool> TryDeclineInvite(int clubId, string userId);
-		Task<ModelActionRequestResult<ClubMember>> ManageMember(string managerId, string targetUserId, int clubId);
+		Task<ModelAccessResult<ClubMember, Ban, AccessErrors>> ManageMember(string managerId, string targetUserId, int clubId);
 		Task<bool> TryUpdateMember(ClubMember member, ModelStateDictionary modelState, string managerId);
+		Task<bool> Ban(Ban ban, ModelStateDictionary modelState, string managerId);
 	}
 }

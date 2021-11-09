@@ -1,4 +1,5 @@
-﻿using DAL.Models;
+﻿using BookClub.Controllers.Services;
+using DAL.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service;
@@ -14,31 +15,49 @@ namespace BookClub.Controllers
 	{
 		private readonly IClubService clubService;
 		private readonly IClubMemberService memberService;
+
+		private readonly IErrorDisplayHandler<ModelAccessResult<ClubMember, Ban, AccessErrors>, AccessErrors> viewDisplayer;
+		private readonly IErrorDisplayHandler<ModelAccessResult<ClubMember, Ban, AccessErrors>, AccessErrors> manageDisplayer;
+		private readonly IErrorDisplayHandler<ModelAccessResult<Club, Ban, AccessErrors>, AccessErrors> manageClubDisplayer;
+
 		public MembersController(IClubService clubService, IClubMemberService memberService)
 		{
 			this.clubService = clubService;
 			this.memberService = memberService;
+
+			//configure service request error actions
+			viewDisplayer = new AccessErrorHandler<ClubMember, Ban, AccessErrors>(this);
+			manageDisplayer = new AccessErrorHandler<ClubMember, Ban, AccessErrors>(this);
+			manageClubDisplayer = new AccessErrorHandler<Club, Ban, AccessErrors>(this);
+
+			var commonHandlers = new Dictionary<AccessErrors, IRequestErrorHandler>()
+			{
+				{ AccessErrors.NoAccess, new ErrorHandlerRedirect("Index", "Clubs") },
+				{ AccessErrors.NotFound, new ErrorHandlerRedirect("Index", "Clubs") },
+				{ AccessErrors.Banned, new ErrorHandler("~/Views/Clubs/Banned.cshtml") }
+			};
+			viewDisplayer.SetErrorHandlers(commonHandlers);
+			manageDisplayer.SetErrorHandlers(commonHandlers);
+			manageClubDisplayer.SetErrorHandlers(commonHandlers);
+			manageDisplayer.SetHandler(AccessErrors.NotPermitted,
+				new ErrorHandlerRedirect("ViewClub", "Clubs", "id"));
+			manageClubDisplayer.SetHandler(AccessErrors.NotPermitted,
+				new ErrorHandlerRedirect("ViewClub", "Clubs", "id"));
 		}
 		string UserId { get => User.FindFirstValue(ClaimTypes.NameIdentifier); }
 
 		[Authorize]
 		public async Task<IActionResult> Index(int id)
 		{
-			var request = await clubService.CanUserManageClub(id, UserId);
-			if (request.successful)
-			{
-				return View(request.requestedModel);
-			}
-			return RedirectToAction("ViewClub", "Clubs", new { id });
+			var request = await clubService.GetUserManagedClub(id, UserId);
+			return await manageClubDisplayer.GetResult(request, View().ViewName);
 		}
 
 		[Authorize]
-		public async Task<IActionResult> Edit(string id, int clubId)
+		public async Task<IActionResult> Edit(int id, string userId)
 		{
-			var request = await memberService.ManageMember(UserId, id, clubId);
-			if (request.successful)
-				return View(request.requestedModel);
-			return RedirectToAction("Index", new { id = clubId } );
+			var request = await memberService.ManageMember(UserId, userId, id);
+			return await manageDisplayer.GetResult(request, View().ViewName);
 		}
 
 		[Authorize]
@@ -46,15 +65,15 @@ namespace BookClub.Controllers
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Edit([FromForm] ClubMember member)
 		{
+			var request = await memberService.ManageMember(UserId, member.User.Id, member.Club.ID.Value);
+			if(!request.Success)
+				return await manageDisplayer.GetErrorResult(request);
+
 			if (await memberService.TryUpdateMember(member, ModelState, UserId))
 				return RedirectToAction("Index", new { id=member.Club.ID });
-			var request = await memberService.ManageMember(UserId, member.User.Id, member.Club.ID.Value);
-			if (request.successful)
-			{
-				//TODO not the best solution ever
-				member.Club = request.requestedModel.Club;
-				member.User = request.requestedModel.User;
-			}
+			//TODO not the best solution ever (fix lost related entities)
+			member.Club = request.requestedModel.Club;
+			member.User = request.requestedModel.User;
 			return View(member);
 		}
 
@@ -79,8 +98,8 @@ namespace BookClub.Controllers
 		[Authorize]
 		public async Task<IActionResult> SendInvite(int id)
 		{
-			var request = await clubService.CanUserManageClub(id, UserId);
-			if (request.successful)
+			var request = await clubService.GetUserManagedClub(id, UserId);
+			if (request.Success)
 			{
 				return View(new ClubInvite()
 				{
@@ -88,7 +107,7 @@ namespace BookClub.Controllers
 					Club = request.requestedModel
 				});
 			}
-			return RedirectToAction("ViewClub", "Clubs", new { id });
+			return await manageClubDisplayer.GetErrorResult(request);
 		}
 
 		[Authorize]
@@ -96,13 +115,18 @@ namespace BookClub.Controllers
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> SendInvite([FromForm] ClubInvite invite)
 		{
-			if (await memberService.TrySendInvite(invite, ModelState, UserId))
+			var request = await clubService.GetUserManagedClub(invite.ClubID, UserId);
+			if (request.Success)
 			{
-				//TODO add success page
-				return RedirectToAction("ViewClub", "Clubs", new { id = invite.ClubID });
+				if (await memberService.TrySendInvite(invite, ModelState, UserId))
+				{
+					//TODO add success page
+					return RedirectToAction("ViewClub", "Clubs", new { id = invite.ClubID });
+				}
+				invite.Club = (await clubService.GetClubView(invite.ClubID, UserId)).requestedModel;
+				return View(invite);
 			}
-			invite.Club = await clubService.GetClubView(invite.ClubID, UserId);
-			return View(invite);
+			return await manageClubDisplayer.GetErrorResult(request);
 		}
 
 		[Authorize]
@@ -132,10 +156,39 @@ namespace BookClub.Controllers
 		[Authorize]
 		public async Task<IActionResult> DeclineInvite(int id)
 		{
-			var file = Request.Form.Files[0];
 			if (await memberService.TryDeclineInvite(id, UserId)) //TODO error page
 				;
 			return RedirectToAction("Invites");
+		}
+
+		[Authorize]
+		public async Task<IActionResult> Ban(int id, string userId)
+		{
+			var request = await memberService.ManageMember(UserId, userId, id);
+			if(!request.Success)
+				return await manageDisplayer.GetErrorResult(request);
+			ViewBag.UserName = request.requestedModel.User.UserName;
+			return View(new Ban() { 
+				BannedUserID = request.requestedModel.User.Id,
+				ClubID = request.requestedModel.Club.ID.Value
+			});
+		}
+
+		[Authorize]
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> Ban([FromForm] Ban ban)
+		{
+			var request = await memberService.ManageMember(UserId, ban.BannedUserID, ban.ClubID);
+			if (!request.Success)
+				return await manageDisplayer.GetErrorResult(request);
+			if ((await memberService.Ban(ban, ModelState, UserId)))
+				return RedirectToAction("Index", new { id = ban.ClubID });
+			else
+			{
+				ViewBag.UserName = request.requestedModel.User.UserName;
+				return View(ban);
+			}
 		}
 	}
 }

@@ -28,7 +28,6 @@ namespace Service
 		}
 		public async Task<IEnumerable<Club>> GetUserClubs(string userId)
 		{
-			//select clubs from membership and map from DTO to model
 			return from m in (await userRepos.Get(userId)).Memberships
 				   orderby m.LastVisitTime descending
 				   select mapper.Map<Club>(m.Club);
@@ -36,10 +35,32 @@ namespace Service
 
 		public async Task<IEnumerable<Club>> GetUserManagedClubs(string userId)
 		{
-			//logics: creator/manager of the club is always the member
 			return from m in (await userRepos.Get(userId)).Memberships
 				   where accessService.CanUserManageClub(m)
+				   orderby m.LastVisitTime descending
 				   select mapper.Map<Club>(m.Club);
+		}
+
+		public async Task<ModelAccessResult<Club, Ban, AccessErrors>> GetClubView(int id, string userId)
+		{
+			var club = await clubRepos.Get(id);
+			var accessResult = await accessService.CanUserViewClub(club, userId);
+			if (!accessResult.Success)
+				return accessResult.Map<Club, Ban>(mapper);
+			club.Members.FirstOrDefault(x => x.UserID == userId).LastVisitTime = DateTime.Now;
+			await clubRepos.SaveChanges();
+			return new ModelAccessResult<Club, Ban, AccessErrors>(mapper.Map<Club>(club));
+		}
+
+		public async Task<ModelAccessResult<Club, Ban, AccessErrors>> GetUserManagedClub(int clubId, string userId)
+		{
+			var club = await clubRepos.Get(clubId);
+			var accessResult = await accessService.CanUserManageClub(club, userId);
+			if (!accessResult.Success)
+				return accessResult.Map<Club, Ban>(mapper);
+			club.Members.FirstOrDefault(x => x.UserID == userId).LastVisitTime = DateTime.Now;
+			await clubRepos.SaveChanges();
+			return new ModelAccessResult<Club, Ban, AccessErrors>(mapper.Map<Club>(club));
 		}
 
 		public async Task<bool> TryInsertClub(Club club, ModelStateDictionary modelState, string userId)
@@ -59,21 +80,6 @@ namespace Service
 			return false;
 		}
 
-		public async Task<Club> GetClubView(int id, string userId)
-		{
-			var club = await clubRepos.Get(id);
-			if(accessService.CanUserViewClub(club, userId))
-				return mapper.Map<Club>(club);
-			return null;
-		}
-
-		public async Task<ModelActionRequestResult<Club>> CanUserManageClub(int clubId, string userId)
-		{
-			var club = await clubRepos.Get(clubId);
-			var result = accessService.CanUserManageClub(club, userId);
-			return new ModelActionRequestResult<Club>(result, mapper.Map<Club>(club));
-		}
-
 		public async Task<bool> TryUpdateClub(Club club, ModelStateDictionary modelState)
 		{
 			if (modelState.IsValid && club.ID.HasValue)
@@ -91,12 +97,12 @@ namespace Service
 		public async Task<bool> TryAddBooks(IEnumerable<int> bookIds, int clubId, string userId)
 		{
 			var club = await clubRepos.Get(clubId);
-			if (!accessService.CanUserManageClub(club, userId))
+			if (!(await accessService.CanUserManageClub(club, userId)).Success)
 				return false;
 			var user = await userRepos.Get(userId);
 			foreach (var bookId in bookIds)
-				club.Books.Add(new DAL.DTO.ClubBook() 
-				{ 
+				club.Books.Add(new DAL.DTO.ClubBook()
+				{
 					AddedByUser = user,
 					Club = club,
 					BookID = bookId,

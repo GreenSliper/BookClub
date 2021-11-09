@@ -6,7 +6,7 @@
 
 @section IconBottom
 {
-    @if (ViewBag.IsUserMember)
+    @if (ViewBag.IsUserMember!=null && ViewBag.IsUserMember)
     {
         <button class="btn btn-danger display-8"
                 onclick="location.href='@Url.Action("Leave", "Members", new { id = Model.ID })'">

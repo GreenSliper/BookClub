@@ -31,6 +31,8 @@ namespace DAL.Data
 				.HasKey(c => new { c.BookID, c.DiscussionID });
 			modelBuilder.Entity<ClubInvite>()
 				.HasKey(c => new { c.ClubID, c.ReceiverID });
+			modelBuilder.Entity<Ban>()
+				.HasKey(c => new { c.ClubID, c.BannedUserID });
 			base.OnModelCreating(modelBuilder);
 		}
 

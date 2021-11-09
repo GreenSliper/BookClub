@@ -25,8 +25,8 @@ namespace BookClub.Controllers
 		public async Task<IActionResult> Add(int id)
 		{
 			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			var request = await clubService.CanUserManageClub(id, userid);
-			if (request.successful)
+			var request = await clubService.GetUserManagedClub(id, userid);
+			if (request.Success)
 			{
 				ViewBag.ClubId = id;
 				return View(new ClubDiscussion { Club = request.requestedModel });
@@ -44,7 +44,7 @@ namespace BookClub.Controllers
 			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
 			if (int.TryParse(TempData["ClubId"].ToString(), out int clubId))
 				if (discussion != null)
-					if ((await clubService.CanUserManageClub(clubId, userid)).successful)
+					if ((await clubService.GetUserManagedClub(clubId, userid)).Success)
 					{
 						var result = await discussionService.TryAddDiscussion(discussion, ModelState, clubId, userid);
 						if (result.successful)
@@ -104,8 +104,8 @@ namespace BookClub.Controllers
 			var request = await discussionService.TryGetDiscussion(id, userid);
 			if (request.successful)
 			{
-				ViewBag.UserCanEdit = (await clubService.CanUserManageClub(request.requestedModel.Club.ID.Value, userid))
-					.successful;
+				ViewBag.UserCanEdit = (await clubService.GetUserManagedClub(request.requestedModel.Club.ID.Value, userid))
+					.Success;
 				return View(request.requestedModel);
 			}
 			else
@@ -120,7 +120,7 @@ namespace BookClub.Controllers
 			var request = await discussionService.TryGetDiscussion(id, userid);
 			if (request.successful)
 			{
-				ViewBag.UserCanEdit = await clubService.CanUserManageClub(request.requestedModel.Club.ID.Value, userid);
+				ViewBag.UserCanEdit = await clubService.GetUserManagedClub(request.requestedModel.Club.ID.Value, userid);
 				return View(request.requestedModel);
 			}
 			else

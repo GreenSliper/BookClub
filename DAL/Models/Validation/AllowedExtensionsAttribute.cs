@@ -19,14 +19,13 @@ namespace DAL.Models.Validation
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            var file = value as IFormFile;
-            if (file != null)
-            {
-                var extension = Path.GetExtension(file.FileName).ToLower();
-                if (!extensions.Contains(extension))
-                    return new ValidationResult(GetErrorMessage(extension));
-            }
-            return ValidationResult.Success;
+			if (value is IFormFile file)
+			{
+				var extension = Path.GetExtension(file.FileName).ToLower();
+				if (!extensions.Contains(extension))
+					return new ValidationResult(GetErrorMessage(extension));
+			}
+			return ValidationResult.Success;
         }
 
         public string GetErrorMessage(string extension)
