@@ -12,15 +12,21 @@ namespace Service
 	public class AccessService : IAccessService
 	{
 		private readonly MemberPermissions minimalToManage = MemberPermissions.Manager;
-		private readonly MemberPermissions minimalToManageMembers = MemberPermissions.Admin;
-		public MemberPermissions MinimalToManage => minimalToManage;
 		public MemberPermissions DefaultPermission => MemberPermissions.Reader;
 
 		private readonly IExpirableRepos<Ban, (int clubId, string bannedUserID)> banRepos;
 
+		bool[,] actionPermissionMatrix;
 		public AccessService(IExpirableRepos<Ban, (int clubId, string bannedUserID)> banRepos)
 		{
 			this.banRepos = banRepos;
+			//Permissions: Reader, Manager, Admin, Creator
+			actionPermissionMatrix = new bool[,] {
+				/*View*/		 { true, true, true, true },
+				/*Manage*/		 { false, true, true, true },
+				/*ManageMembers*/{ false, false, true, true },
+				/*Edit*/		 { false, false, false, true }
+			};
 		}
 
 		private bool HasUserPermission(Club club, string userId, MemberPermissions permission)
@@ -50,35 +56,6 @@ namespace Service
 			return new ModelAccessResult<Club, Ban, AccessErrors>(club);
 		}
 
-		private async Task<ModelAccessResult<Club, Ban, AccessErrors>> CheckAccess(Club club, string userId, MemberPermissions permission)
-		{
-			if (club == null)
-				return new ModelAccessResult<Club, Ban, AccessErrors>(AccessErrors.NotFound);
-			var accessResult = await GetClubOrBan(club, userId);
-			if (!accessResult.Success)
-				return accessResult;
-			if (!HasUserPermission(club, userId, permission))
-				return accessResult.SetError(AccessErrors.NotPermitted);
-			return accessResult;
-		}
-
-		public async Task<ModelAccessResult<Club, Ban, AccessErrors>> CanUserManageClub(Club club, string userId)
-		{
-			return await CheckAccess(club, userId, minimalToManage);
-		}
-		public async Task<ModelAccessResult<Club, Ban, AccessErrors>> CanUserManageClubMembers(Club club, string userId)
-		{
-			return await CheckAccess(club, userId, minimalToManageMembers);
-		}
-		public async Task<ModelAccessResult<Club, Ban, AccessErrors>> CanUserViewClub(Club club, string userId)
-		{
-			if (club == null)
-				return new ModelAccessResult<Club, Ban, AccessErrors>(AccessErrors.NotFound);
-			if (club.IsPublic || club.Members.Any(x => x.UserID == userId))
-				return await GetClubOrBan(club, userId);
-			return new ModelAccessResult<Club, Ban, AccessErrors>(AccessErrors.NoAccess);
-		}
-
 		public bool CanUserGivePermission(ClubMember sender, MemberPermissions givenPermission)
 		{
 			return sender.PermissionLevel > givenPermission || sender.Club.Creator == sender.User;
@@ -98,7 +75,7 @@ namespace Service
 
 		public async Task<bool> CanUserModifyMember(ClubMember manager, ClubMember member)
 		{
-			return (await CanUserManageClubMembers(manager.Club, manager.UserID)).Success &&
+			return (await GetClub(manager.Club, manager.UserID, MemberActions.ManageMembers)).Success &&
 				   CanUserGivePermission(manager, member.PermissionLevel) &&
 				   member.UserID != manager.Club.Creator.Id;
 		}
@@ -110,6 +87,28 @@ namespace Service
 				await banRepos.Insert(ban);
 			else
 				await banRepos.Update(oldBan, ban);
+		}
+
+		public async Task<ModelAccessResult<Club, Ban, AccessErrors>> GetClub(Club club, string userId, MemberActions targetAction)
+		{
+			if (club == null)
+				return new ModelAccessResult<Club, Ban, AccessErrors>(AccessErrors.NotFound);
+			if (club.IsPublic || club.Members.Any(x => x.UserID == userId))
+			{
+				var ban = await GetUserBan(club, userId);
+				if (ban != null)
+					return new ModelAccessResult<Club, Ban, AccessErrors>(ban, AccessErrors.Banned);
+				
+				var member = club.Members.FirstOrDefault(x => x.UserID == userId);
+				if(member == null)
+					return new ModelAccessResult<Club, Ban, AccessErrors>(AccessErrors.NotFound);
+
+				if (actionPermissionMatrix[(int)targetAction, (int)member.PermissionLevel])
+					return new ModelAccessResult<Club, Ban, AccessErrors>(club);
+				else
+					return new ModelAccessResult<Club, Ban, AccessErrors>(AccessErrors.NotPermitted);
+			}
+			return new ModelAccessResult<Club, Ban, AccessErrors>(AccessErrors.NoAccess);
 		}
 	}
 }

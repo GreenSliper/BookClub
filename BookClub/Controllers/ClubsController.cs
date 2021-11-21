@@ -97,11 +97,11 @@ namespace BookClub.Controllers
 		{
 			if (User.Identity.IsAuthenticated)
 			{
-				var manageRequest = await clubService.GetUserManagedClub(id, UserId);
+				var manageRequest = await clubService.GetClub(id, UserId, MemberActions.ManageClub);
 				if (manageRequest.Success)
 					return await viewDisplayer.GetResult(manageRequest, "Manage");
 			}
-			var viewRequest = await clubService.GetClubView(id, UserId);
+			var viewRequest = await clubService.GetClub(id, UserId, MemberActions.View);
 			if (viewRequest.Success)
 				ViewBag.IsUserMember = viewRequest.requestedModel.Members.Any(x => x.User.Id == UserId);
 			return await viewDisplayer.GetResult(viewRequest, View().ViewName);
@@ -110,14 +110,14 @@ namespace BookClub.Controllers
 		[Authorize]
 		public async Task<IActionResult> Manage(int id)
 		{
-			var manageRequest = await clubService.GetUserManagedClub(id, UserId);
+			var manageRequest = await clubService.GetClub(id, UserId, MemberActions.ManageClub);
 			return await manageDisplayer.GetResult(manageRequest, View().ViewName);
 		}
 		
 		[Authorize]
 		public async Task<IActionResult> Edit(int id)
 		{
-			var manageRequest = await clubService.GetUserManagedClub(id, UserId);
+			var manageRequest = await clubService.GetClub(id, UserId, MemberActions.Edit);
 			return await manageDisplayer.GetResult(manageRequest, View().ViewName);
 		}
 
@@ -128,8 +128,8 @@ namespace BookClub.Controllers
 		{
 			if (club.ID.HasValue)
 			{
-				var manageRequest = await clubService.GetUserManagedClub(club.ID.Value, UserId);
-				if(!manageRequest.Success)
+				var manageRequest = await clubService.GetClub(club.ID.Value, UserId, MemberActions.Edit);
+				if (!manageRequest.Success)
 					return await manageDisplayer.GetErrorResult(manageRequest);
 				if (await clubService.TryUpdateClub(club, ModelState))
 					return RedirectToAction("ViewClub", new { club.ID });
@@ -142,7 +142,7 @@ namespace BookClub.Controllers
 		[Authorize]
 		public async Task<IActionResult> AddBooks(int id)
 		{
-			var manageRequest = await clubService.GetUserManagedClub(id, UserId);
+			var manageRequest = await clubService.GetClub(id, UserId, MemberActions.ManageClub);
 			if (manageRequest.Success) {
 				var allBooks = await bookService.GetAllBooks();
 				var targetBooks = from b in allBooks
@@ -159,7 +159,7 @@ namespace BookClub.Controllers
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> AddBooksConfirm(Club club)
 		{
-			var manageRequest = await clubService.GetUserManagedClub(club.ID.Value, UserId);
+			var manageRequest = await clubService.GetClub(club.ID.Value, UserId, MemberActions.ManageClub);
 			if (!manageRequest.Success)
 				return await manageDisplayer.GetErrorResult(manageRequest);
 			//magic is that the list is auto-converted to array

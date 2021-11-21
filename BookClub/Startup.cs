@@ -54,10 +54,10 @@ namespace BookClub
 			});*/
 
 			//auto-mapping
-			services.AddSingleton<IImageMapper, ImageMapper>();
+			services.AddSingleton<IModelMapper<DBImage, DAL.Models.Image>, ImageMapper>();
 			services.AddSingleton(provider => new MapperConfiguration(mc =>
 			{
-				mc.AddProfile(new MappingProfile(provider.GetService<IImageMapper>()));
+				mc.AddProfile(new MappingProfile(provider.GetService<IModelMapper<DBImage, DAL.Models.Image>>()));
 			}).CreateMapper());
 
 			//repository
@@ -66,6 +66,7 @@ namespace BookClub
 			services.AddScoped<IRepository<Book, int>, BookRepository<ApplicationDbContext>>();
 			services.AddScoped<IRepository<ClubDiscussion, int>, DiscussionRepository<ApplicationDbContext>>();
 			services.AddScoped<IRepository<ClubMember, (int, string)>, MemberRepos<ApplicationDbContext>>();
+			services.AddScoped<IRepository<ReadBook, (int, string)>, ReadBookRepository<ApplicationDbContext>>();
 			services.AddScoped<IExpirableRepos<ClubInvite, (int clubId, string receiverId)>,
 				InviteRepository<ApplicationDbContext>>();
 			services.AddScoped<IExpirableRepos<Ban, (int clubID, string targetUserID)>,

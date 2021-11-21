@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DAL.DTO
 {
-	public enum MemberPermissions { Reader, Manager, Admin }
+	public enum MemberPermissions { Reader, Manager, Admin, Creator }
 	public class ClubMember
 	{
 		public int ClubID { get; set; }

@@ -1,0 +1,21 @@
+﻿@{
+    Layout = "_Layout";
+}
+
+@model DAL.Models.ReadBook
+
+<h1 class="text-center display-5">@Model.BookName</h1>
+<br>
+<form method="post" asp-controller="Book" asp-action="MarkRead" asp-validation-summary="All">
+    <div class="club-box">
+
+        @{
+            await Html.RenderPartialAsync("Partial/_ReadBookFormPartial", Model);
+        }
+
+        <br /><br />
+        <div style="text-align:center">
+            <input type="submit" value="Confirm" class="display-6 submit-default">
+        </div>
+    </div>
+</form>

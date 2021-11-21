@@ -1,22 +1,23 @@
-﻿using AutoMapper;
+﻿using System.Linq;
+using AutoMapper;
 
 namespace DAL.Models.Mapping
 {
 	public class MappingProfile : Profile
 	{
-		public MappingProfile(IImageMapper imageMapper)
+		public MappingProfile(IModelMapper<DTO.DBImage, Image> imageMapper)
 		{
-			CreateMap<DTO.DBImage, Image>().ConvertUsing(x => imageMapper.ToImage(x));
-			CreateMap<Image, DTO.DBImage>().ConvertUsing(x => imageMapper.ToDBImage(x));
+			CreateMap<DTO.DBImage, Image>().ConvertUsing(x => imageMapper.ToVM(x));
+			CreateMap<Image, DTO.DBImage>().ConvertUsing(x => imageMapper.ToDTO(x));
 
 			CreateMap<Club, DTO.Club>();
 			CreateMap<DTO.Club, Club>();
 
 			CreateMap<Book, DTO.Book>();
-			CreateMap<DTO.Book, Book>();
+			CreateMap<DTO.Book, Book>().ForMember(x => x.AverageRating, res=>res.MapFrom<BookRatingResolver>());
 
 			CreateMap<ReadBook, DTO.ReadBook>();
-			CreateMap<DTO.ReadBook, ReadBook>();
+			CreateMap<DTO.ReadBook, ReadBook>().ForMember(x => x.BookName, y => y.MapFrom(z => z.Book.Name));
 
 			CreateMap<ClubBook, DTO.ClubBook>();
 			CreateMap<DTO.ClubBook, ClubBook>();

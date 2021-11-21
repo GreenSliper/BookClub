@@ -1,0 +1,15 @@
+﻿@model DAL.Models.ReadBook
+
+
+@Html.HiddenFor(m => m.BookID)
+
+<strong><label class="display-8" asp-for="RememberQuality"></label></strong>
+<br>
+<input type="range" class="display-7 v2" min="1" max="10" asp-for="RememberQuality">
+<span class="display-8" style="color:red;" asp-validation-for="RememberQuality"></span>
+
+<br>
+<strong><label class="display-8" asp-for="Rating"></label></strong>
+<br>
+<input type="range" class="display-7 v2" min="1" max="10" asp-for="Rating">
+<span class="display-8" style="color:red;" asp-validation-for="Rating"></span>

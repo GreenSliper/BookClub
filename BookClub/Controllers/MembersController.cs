@@ -49,7 +49,7 @@ namespace BookClub.Controllers
 		[Authorize]
 		public async Task<IActionResult> Index(int id)
 		{
-			var request = await clubService.GetUserManagedClub(id, UserId);
+			var request = await clubService.GetClub(id, UserId, MemberActions.View);
 			return await manageClubDisplayer.GetResult(request, View().ViewName);
 		}
 
@@ -98,7 +98,7 @@ namespace BookClub.Controllers
 		[Authorize]
 		public async Task<IActionResult> SendInvite(int id)
 		{
-			var request = await clubService.GetUserManagedClub(id, UserId);
+			var request = await clubService.GetClub(id, UserId, MemberActions.ManageClub);
 			if (request.Success)
 			{
 				return View(new ClubInvite()
@@ -115,7 +115,7 @@ namespace BookClub.Controllers
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> SendInvite([FromForm] ClubInvite invite)
 		{
-			var request = await clubService.GetUserManagedClub(invite.ClubID, UserId);
+			var request = await clubService.GetClub(invite.ClubID, UserId, MemberActions.ManageClub);
 			if (request.Success)
 			{
 				if (await memberService.TrySendInvite(invite, ModelState, UserId))
@@ -123,7 +123,7 @@ namespace BookClub.Controllers
 					//TODO add success page
 					return RedirectToAction("ViewClub", "Clubs", new { id = invite.ClubID });
 				}
-				invite.Club = (await clubService.GetClubView(invite.ClubID, UserId)).requestedModel;
+				invite.Club = (await clubService.GetClub(invite.ClubID, UserId, MemberActions.View)).requestedModel;
 				return View(invite);
 			}
 			return await manageClubDisplayer.GetErrorResult(request);

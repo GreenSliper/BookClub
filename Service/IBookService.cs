@@ -12,5 +12,9 @@ namespace Service
 	{
 		Task<ModelActionRequestResult<Book>> TryInsertBook(Book book, ModelStateDictionary modelState, string userId);
 		Task<IEnumerable<Book>> GetAllBooks();
+		Task<Book> GetBook(int id);
+		Task<ReadBook> GetOrCreateReadBook(int id, string userId);
+		Task<bool> IsBookRead(int id, string userId);
+		Task<bool> InsertOrUpdateReadBook(ReadBook readBook, ModelStateDictionary modelState, string userId);
 	}
 }

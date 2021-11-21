@@ -154,7 +154,7 @@ namespace Service
 		public async Task<ModelAccessResult<ClubMember, Ban, AccessErrors>> ManageMember(string managerId, string targetUserId, int clubId)
 		{
 			var club = await clubRepos.Get(clubId);
-			var manageMemberRequest = await accessService.CanUserManageClubMembers(club, managerId);
+			var manageMemberRequest = await accessService.GetClub(club, managerId, MemberActions.ManageMembers);
 			if (!manageMemberRequest.Success)
 				return manageMemberRequest.Map<ClubMember, Ban>(mapper);
 			if (manageMemberRequest.Success)
@@ -200,7 +200,7 @@ namespace Service
 			if (!modelState.IsValid)
 				return false;
 			var club = await clubRepos.Get(ban.ClubID);
-			if ((await accessService.CanUserViewClub(club, ban.BannedUserID)).error == AccessErrors.Banned)
+			if ((await accessService.GetClub(club, ban.BannedUserID, MemberActions.View)).error == AccessErrors.Banned)
 			{
 				modelState.AddModelError("", "User is already banned!");
 				return false;

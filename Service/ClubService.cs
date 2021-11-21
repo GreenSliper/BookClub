@@ -41,28 +41,6 @@ namespace Service
 				   select mapper.Map<Club>(m.Club);
 		}
 
-		public async Task<ModelAccessResult<Club, Ban, AccessErrors>> GetClubView(int id, string userId)
-		{
-			var club = await clubRepos.Get(id);
-			var accessResult = await accessService.CanUserViewClub(club, userId);
-			if (!accessResult.Success)
-				return accessResult.Map<Club, Ban>(mapper);
-			club.Members.FirstOrDefault(x => x.UserID == userId).LastVisitTime = DateTime.Now;
-			await clubRepos.SaveChanges();
-			return new ModelAccessResult<Club, Ban, AccessErrors>(mapper.Map<Club>(club));
-		}
-
-		public async Task<ModelAccessResult<Club, Ban, AccessErrors>> GetUserManagedClub(int clubId, string userId)
-		{
-			var club = await clubRepos.Get(clubId);
-			var accessResult = await accessService.CanUserManageClub(club, userId);
-			if (!accessResult.Success)
-				return accessResult.Map<Club, Ban>(mapper);
-			club.Members.FirstOrDefault(x => x.UserID == userId).LastVisitTime = DateTime.Now;
-			await clubRepos.SaveChanges();
-			return new ModelAccessResult<Club, Ban, AccessErrors>(mapper.Map<Club>(club));
-		}
-
 		public async Task<bool> TryInsertClub(Club club, ModelStateDictionary modelState, string userId)
 		{
 			if (modelState.IsValid)
@@ -72,7 +50,8 @@ namespace Service
 				dto.Members.Add(new DAL.DTO.ClubMember {
 					Club = dto, 
 					LastVisitTime = DateTime.Now,
-					User = dto.Creator
+					User = dto.Creator,
+					PermissionLevel = DAL.DTO.MemberPermissions.Creator
 				});
 				await clubRepos.Insert(dto);
 				return true;
@@ -97,7 +76,7 @@ namespace Service
 		public async Task<bool> TryAddBooks(IEnumerable<int> bookIds, int clubId, string userId)
 		{
 			var club = await clubRepos.Get(clubId);
-			if (!(await accessService.CanUserManageClub(club, userId)).Success)
+			if (!(await accessService.GetClub(club, userId, MemberActions.ManageClub)).Success)
 				return false;
 			var user = await userRepos.Get(userId);
 			foreach (var bookId in bookIds)
@@ -118,6 +97,17 @@ namespace Service
 			return from c in clubs
 				   where c.IsPublic
 				   select mapper.Map<Club>(c);
+		}
+
+		public async Task<ModelAccessResult<Club, Ban, AccessErrors>> GetClub(int id, string userId, MemberActions targetAction)
+		{
+			var club = await clubRepos.Get(id);
+			var accessResult = await accessService.GetClub(club, userId, targetAction);
+			if (!accessResult.Success)
+				return accessResult.Map<Club, Ban>(mapper);
+			club.Members.FirstOrDefault(x => x.UserID == userId).LastVisitTime = DateTime.Now;
+			await clubRepos.SaveChanges();
+			return new ModelAccessResult<Club, Ban, AccessErrors>(mapper.Map<Club>(club));
 		}
 	}
 }

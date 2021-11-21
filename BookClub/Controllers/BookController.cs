@@ -18,6 +18,8 @@ namespace BookClub.Controllers
 			this.bookService = bookService;
 		}
 
+		string UserId { get => User.FindFirstValue(ClaimTypes.NameIdentifier); }
+
 		[Authorize]
 		public IActionResult Add()
 		{
@@ -29,8 +31,7 @@ namespace BookClub.Controllers
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Add([FromForm] Book book)
 		{
-			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			var result = await bookService.TryInsertBook(book, ModelState, userid);
+			var result = await bookService.TryInsertBook(book, ModelState, UserId);
 			if (result.successful)
 				return View("AddSuccess", result.requestedModel);
 			return View();
@@ -44,6 +45,29 @@ namespace BookClub.Controllers
 		public IActionResult Index()
 		{
 			return View();
+		}
+		public async Task<IActionResult> View(int id)
+		{
+			ViewBag.IsBookRead = false;
+			if (User.Identity.IsAuthenticated)
+				ViewBag.IsBookRead = await bookService.IsBookRead(id, UserId);
+			return View(await bookService.GetBook(id));
+		}
+
+		[Authorize]
+		public async Task<IActionResult> MarkRead(int id)
+		{
+			return View(await bookService.GetOrCreateReadBook(id, UserId));
+		}
+
+		[Authorize]
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> MarkRead([FromForm] ReadBook readBook)
+		{
+			if (await bookService.InsertOrUpdateReadBook(readBook, ModelState, UserId))
+				return RedirectToAction("View", new { id = readBook.BookID });
+			return View(readBook);
 		}
 	}
 }

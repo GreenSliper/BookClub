@@ -31,7 +31,7 @@ namespace Service
 		public async Task<bool> TryAddBooks(IEnumerable<int> bookIDs, int discId, string userId)
 		{
 			var disc = await discussionRepos.Get(discId);
-			if (!(await accessService.CanUserManageClub(disc.Club, userId)).Success)
+			if (!(await accessService.GetClub(disc.Club, userId, MemberActions.ManageClub)).Success)
 				return false;
 			foreach (var bookId in bookIDs)
 				disc.Books.Add(new DAL.DTO.ClubDiscussionBook()
@@ -50,7 +50,7 @@ namespace Service
 			if (!modelState.IsValid)
 				return new ModelActionRequestResult<ClubDiscussion>(false);
 			DAL.DTO.Club club = await clubRepos.Get(clubId);
-			if (club == null || !(await accessService.CanUserManageClub(club, userId)).Success)
+			if (club == null || !(await accessService.GetClub(club, userId, MemberActions.ManageClub)).Success)
 				return new ModelActionRequestResult<ClubDiscussion>(false);
 			ReaderUser user = await userRepos.Get(userId);
 			discussion.Creator = user;
@@ -64,7 +64,7 @@ namespace Service
 		public async Task<ModelActionRequestResult<ClubDiscussion>> TryGetDiscussion(int discId, string userId)
 		{
 			var dto = await discussionRepos.Get(discId);
-			if ((await accessService.CanUserViewClub(dto.Club, userId)).Success)
+			if ((await accessService.GetClub(dto.Club, userId, MemberActions.View)).Success)
 				return new ModelActionRequestResult<ClubDiscussion>(true, mapper.Map<ClubDiscussion>(dto));
 			return new ModelActionRequestResult<ClubDiscussion>(false);
 		}
@@ -73,7 +73,7 @@ namespace Service
 			int discId, string userId)
 		{
 			var dto = await discussionRepos.Get(discId);
-			if (!(await accessService.CanUserManageClub(dto.Club, userId)).Success)
+			if (!(await accessService.GetClub(dto.Club, userId, MemberActions.ManageClub)).Success)
 				return false;
 			RefreshBooksPriorities(dto.Books, discussionBooks);
 			await discussionRepos.Update(dto);
@@ -96,7 +96,7 @@ namespace Service
 			if (!modelState.IsValid)
 				return false;
 			var dto = await discussionRepos.Get(discussion.ID);
-			if (!(await accessService.CanUserManageClub(dto.Club, userId)).Success)
+			if (!(await accessService.GetClub(dto.Club, userId, MemberActions.ManageClub)).Success)
 				return false;
 			
 			//update fields: manual, because some fields are not affected

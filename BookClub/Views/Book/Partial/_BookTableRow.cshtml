@@ -1,7 +1,7 @@
 ﻿@model DAL.Models.Book
 
 <td>
-    <p class="display-7 v2">@Model.Name</p>
+    <a class="display-7 v2" asp-action="View" asp-controller="Book" asp-route-id="@Model.ID">@Model.Name</a>
 </td>
 <td>
     <p class="display-7 v2">@Model.Author</p>

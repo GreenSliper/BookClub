@@ -8,14 +8,16 @@ using System.Threading.Tasks;
 
 namespace DAL.Models.Mapping
 {
-	public interface IImageMapper
+	public interface IModelMapper<DTOT, VMT>
+		where DTOT : class
+		where VMT : class
 	{
-		DBImage ToDBImage(Image image);
-		Image ToImage(DBImage image);
+		DTOT ToDTO(VMT model);
+		VMT ToVM(DTOT model);
 	}
-	public class ImageMapper : IImageMapper
+	public class ImageMapper : IModelMapper<DTO.DBImage, Image>
 	{
-		public DBImage ToDBImage(Image image)
+		public DBImage ToDTO(Image image)
 		{
 			if (image == null)
 				return null;
@@ -30,7 +32,7 @@ namespace DAL.Models.Mapping
 			return img;
 		}
 
-		public Image ToImage(DBImage image)
+		public Image ToVM(DBImage image)
 		{
 			if (image == null)
 				return null;
