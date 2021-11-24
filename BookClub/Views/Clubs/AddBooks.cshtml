@@ -9,28 +9,14 @@
     <h1 class="display-5">@Model.Name - Add books</h1>
 }
 @section Scripts{
-    <script type="text/javascript">
-    function ToggleBook(id)
-    {
-        var req = {
-            targId: id,
-            listName : 'SelectedBookList'
-        };
-        $.ajax({
-            type: 'POST',
-            url: '/Function/ViewDataToggleIDList',
-            data: req,
-            success: function () { }
-          });
-    }
-    </script>
+    <script src="~/js/bookPicker.js"></script>
 }
 <br>
 <form method="post" asp-controller="Clubs" asp-action="AddBooksConfirm" asp-validation-summary="All">
     @Html.HiddenFor(m => m.ID)
     <div class="text-center">
-        <table class="w-100">
-            <tr>
+        <table class="w-100" id="mainTable">
+            <tr id="tableHeader">
                 <th>
                     <h1 class="display-7 v2"><strong>Book</strong></h1>
                 </th>
@@ -43,7 +29,6 @@
             </tr>
             @{
                 await Html.RenderPartialAsync("../Book/Partial/_BookPicker");
-                TempData.Keep("SelectedBookList");
             }
         </table>
 

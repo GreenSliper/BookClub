@@ -11,6 +11,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using BookClub.Controllers.Services;
+using BookClub.Extensions;
 
 namespace BookClub.Controllers
 {
@@ -163,8 +164,9 @@ namespace BookClub.Controllers
 			if (!manageRequest.Success)
 				return await manageDisplayer.GetErrorResult(manageRequest);
 			//magic is that the list is auto-converted to array
-			var idList = TempData["SelectedBookList"] as int[];
-			TempData.Remove("SelectedBookList");
+			var idList = SessionHelper.GetObjectFromJsonAndDestroy<List<int>>(HttpContext.Session, BookPickerController.PickerContainerName);
+			//TempData["SelectedBookList"] as int[];
+			//TempData.Remove("SelectedBookList");
 			await clubService.TryAddBooks(idList, club.ID.Value, UserId);
 			return RedirectToAction("ViewClub", new { id = club.ID.Value });
 		}

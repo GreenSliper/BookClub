@@ -30,6 +30,8 @@ namespace Service
 
 		public async Task<bool> TryAddBooks(IEnumerable<int> bookIDs, int discId, string userId)
 		{
+			if (bookIDs == null || !bookIDs.Any())
+				return true;
 			var disc = await discussionRepos.Get(discId);
 			if (!(await accessService.GetClub(disc.Club, userId, MemberActions.ManageClub)).Success)
 				return false;
@@ -82,6 +84,8 @@ namespace Service
 
 		void RefreshBooksPriorities(IEnumerable<DAL.DTO.ClubDiscussionBook> old, IEnumerable<ClubDiscussionBook> updated)
 		{
+			if (old == null || !old.Any())
+				return;
 			foreach (var bk in updated)
 			{
 				var edited = old.FirstOrDefault(x => x.BookID == bk.Book.ID);
