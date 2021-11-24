@@ -6,23 +6,7 @@
 @model DAL.Models.ClubDiscussion
 
 @section Scripts{
-    <script type="text/javascript">
-    function RemoveBook(id)
-    {
-        var req = {
-            targId: id,
-            listName : 'SelectedBookList'
-        };
-        $.ajax({
-            type: 'POST',
-            url: '/Function/ViewDataToggleIDList',
-            data: req,
-            success: function () { }
-        });
-        var row = document.getElementById(id);
-        row.style.display = 'none';
-    }
-    </script>
+    <script src="~/js/bookPicker.js"></script>
 }
 
 @section Header{
@@ -37,7 +21,7 @@
             await Html.RenderPartialAsync("Partial/_DiscussionFormPartial", Model);
             <br>
             <h1 class="display-7 mb-2"><strong>Books</strong></h1>
-            <input type="submit" class="btn btn-success display-8" value="Add books" 
+            <input type="submit" class="btn btn-success display-8" value="Add books"
                    asp-controller="Discussion" asp-action="EditAndAddBooks">
             <br>
             <br>
@@ -55,7 +39,7 @@
         <br>
         <br>
         <div style="text-align:center">
-            <input type="submit" value="Confirm changes" class="display-6 p-2 pb-3 submit-default" 
+            <input type="submit" value="Confirm changes" class="display-6 p-2 pb-3 submit-default"
                    asp-controller="Discussion" asp-action="Edit">
         </div>
     </div>

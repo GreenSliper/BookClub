@@ -9,21 +9,7 @@
 }
 
 @section Scripts{
-    <script type="text/javascript">
-    function ToggleBook(id)
-    {
-        var req = {
-            targId: id,
-            listName : 'SelectedBookList'
-        };
-        $.ajax({
-            type: 'POST',
-            url: '/Function/ViewDataToggleIDList',
-            data: req,
-            success: function () { }
-          });
-    }
-    </script>
+    <script src="~/js/bookPicker.js"></script>
 }
 
 <br>
@@ -44,7 +30,6 @@
             </tr>
             @{
                 await Html.RenderPartialAsync("../Book/Partial/_BookPicker", Model);
-                TempData.Keep("SelectedBookList");
             }
         </table>
         <br /><br />

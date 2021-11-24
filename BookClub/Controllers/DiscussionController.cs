@@ -1,4 +1,5 @@
-﻿using BookClub.Models;
+﻿using BookClub.Extensions;
+using BookClub.Models;
 using DAL.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -71,8 +72,7 @@ namespace BookClub.Controllers
 		public async Task<IActionResult> AddBooks([FromForm] ClubDiscussion disc)
 		{
 			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			var added = TempData["SelectedBookList"] as int[];
-			TempData.Remove("SelectedBookList");
+			var added = SessionHelper.GetObjectFromJsonAndDestroy<List<int>>(HttpContext.Session, BookPickerController.PickerContainerName);
 			await discussionService.TryAddBooks(added, disc.ID, userid);
 			return RedirectToAction("ManageBooks", new { id = disc.ID });
 		}
@@ -133,8 +133,7 @@ namespace BookClub.Controllers
 		public async Task<IActionResult> Edit([FromForm] ClubDiscussion discussion)
 		{
 			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			var removed = TempData["SelectedBookList"] as int[];
-			TempData.Remove("SelectedBookList");
+			var removed = SessionHelper.GetObjectFromJsonAndDestroy<List<int>>(HttpContext.Session, BookPickerController.PickerContainerName);
 			if (await discussionService.TryUpdateDiscussion(discussion, ModelState, removed, userid))
 				return RedirectToAction("ViewDiscussion", new { id = discussion.ID });
 			return View();
@@ -146,8 +145,7 @@ namespace BookClub.Controllers
 		public async Task<IActionResult> EditAndAddBooks([FromForm] ClubDiscussion discussion)
 		{
 			var userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			var removed = TempData["SelectedBookList"] as int[];
-			TempData.Remove("SelectedBookList");
+			var removed = SessionHelper.GetObjectFromJsonAndDestroy<List<int>>(HttpContext.Session, BookPickerController.PickerContainerName);
 			if (await discussionService.TryUpdateDiscussion(discussion, ModelState, removed, userid))
 				return RedirectToAction("AddBooksToExisting", new { id = discussion.ID });
 			return RedirectToAction("Edit", new { discussion });

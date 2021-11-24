@@ -7,13 +7,13 @@
     int num = -1;
     foreach (DAL.Models.Book b in ViewBag.BookList)
     {
-        <tr>
+        <tr id="@b.ID">
             @{
                 await Html.RenderPartialAsync("../Book/Partial/_BookTableRow", b);
                 num++;
             }
             <td>
-                <input type="checkbox" style="width:1.6rem; height:1.6rem;" onclick="ToggleBook(@b.ID)">
+                <input type="checkbox" style="width:1.6rem; height:1.6rem;" onclick="ToggleBookAndPlaceFirst(@b.ID)">
             </td>
         </tr>
     }

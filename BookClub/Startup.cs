@@ -80,6 +80,14 @@ namespace BookClub
 
 			services.AddControllersWithViews();
 			services.AddRazorPages();
+			
+			//sessions
+			services.AddDistributedMemoryCache();
+			services.AddSession(options =>
+			{
+				options.IdleTimeout = TimeSpan.FromMinutes(15);
+				options.Cookie.HttpOnly = true;
+			});
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -100,6 +108,8 @@ namespace BookClub
 			app.UseStaticFiles();
 
 			app.UseRouting();
+			
+			app.UseSession();
 
 			app.UseAuthentication();
 			app.UseAuthorization();
